@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const facultySchema = new mongoose.Schema({
+const facultySchema =  mongoose.Schema({
   fullName: {
     firstName: {
       type: String,
       required: true,
       trim: true,
+      minLength: [3, "First name must contain atleast 3 or more characters"],
     },
     lastName: {
       type: String,
@@ -19,6 +20,7 @@ const facultySchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
+    
   },
   facultyId: {
     type: String,
@@ -29,6 +31,8 @@ const facultySchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    minLength: [6, "Password must contain atleast 6 or more characters"],
+    select: false,
   },
   subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }],
 });

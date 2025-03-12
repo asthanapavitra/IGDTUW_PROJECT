@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const SemesterSchema = new mongoose.Schema({
+const SemesterSchema = mongoose.Schema({
   semNo: { type: Number, required: true },
   subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }],
 });

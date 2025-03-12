@@ -9,4 +9,4 @@ mongoose
         console.log("Error connecting to database : ",err);
     });
 
-mondule.exports=mongoose;
+module.exports=mongoose;
