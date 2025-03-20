@@ -8,4 +8,4 @@ const LMSDashboard = () => {
   )
 }
 
-export default LMSDashboard
+export default LMSDashboard;

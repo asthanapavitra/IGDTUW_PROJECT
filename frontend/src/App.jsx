@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import 'remixicon/fonts/remixicon.css'
 import LMSLogin from "./pages/LMSLogin";
 import FacultyLogin from "./pages/FacultyLogin";
+import LMSDashboard from "./pages/LMSDashboard";
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
         <Route path="/lms-login" element={<LMSLogin />} />
         <Route path="/faculty-login" element={<FacultyLogin />} />
         <Route path="/lms-register" element={<Register />} />
+        <Route path="/lms-dashboard" element={<LMSDashboard/>} />
         <Route path="/faculty-register" element={<Register />} />
       </Routes>
     </>

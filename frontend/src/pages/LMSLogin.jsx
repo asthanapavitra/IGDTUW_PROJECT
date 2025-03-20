@@ -22,6 +22,7 @@ const LMSLogin = () => {
       );
     
       if (res.status == 201) {
+        localStorage.setItem("token",res.data.token);
         setStudent(res.data.student);
         navigate("/lms-dashboard");
       }
@@ -31,7 +32,6 @@ const LMSLogin = () => {
     setEnrollmentNo("");
     setPassword("");
   };
-  console.log(student);
   return (
     <div className="relative h-screen bg-[url('https://d2lk14jtvqry1q.cloudfront.net/media/slider21_139d43fffb.png')] bg-no-repeat bg-[length:100%_100%] md:bg-cover bg-center md:bg-fixed overflow-hidden">
       <div className="min-h-full w-full z-50 bg-black/70">
