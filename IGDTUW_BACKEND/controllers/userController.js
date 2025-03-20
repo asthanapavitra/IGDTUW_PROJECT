@@ -49,6 +49,7 @@ module.exports.loginUser = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
     });
+    student.password = undefined; // Exclude password from the response
     res.status(201).json({ token, student });
   } catch (err) {
     res.status(500).json({ error: err.message });
