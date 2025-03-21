@@ -37,6 +37,24 @@ const StudentSchema =  mongoose.Schema({
     required: true,
     enum:["1","2","3","4","5","6","7","8"]
   },
+  securityQuestion: {
+    question: {
+      type: String,
+      required: true,
+      enum: [
+        "What is the name of your best childhood friend?",
+        "What is your favorite color?",
+        "What was the name of your first school?",
+        "What is your favorite food?",
+        "What is your dream job?"
+      ]
+    },
+    answer: {
+      type: String,
+      required: true,
+      trim:true
+    },
+  }
 });
 StudentSchema.statics.hashPassword = async function (password) {
   return await bcrypt.hash(password, 10);

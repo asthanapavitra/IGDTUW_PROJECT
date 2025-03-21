@@ -7,7 +7,8 @@ module.exports.registerUser = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { email, fullName, password, enrollmentNo, department, semester } =
+    console.log(req.body);
+    const { email, fullName, password, enrollmentNo, department, semester ,securityQuestion} =
       req.body;
     let student = await Student.findOne({ email });
     if (student) {
@@ -20,6 +21,7 @@ module.exports.registerUser = async (req, res) => {
       enrollmentNo,
       department,
       semester,
+      securityQuestion
     });
 
     newStudent.password = await Student.hashPassword(password);
@@ -54,4 +56,5 @@ module.exports.loginUser = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+  
 };
