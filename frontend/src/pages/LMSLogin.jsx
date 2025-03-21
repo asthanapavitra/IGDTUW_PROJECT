@@ -39,7 +39,7 @@ const LMSLogin = () => {
           <form
             onSubmit={handleSubmit}
             action=""
-            className="bg-white/80 m-4 p-8 flex flex-col justify-center items-center rounded-lg gap-5"
+            className="bg-white/90 m-4 p-8 flex flex-col justify-center items-center rounded-lg gap-5 w-[80%] sm:w-[50%] md:w-[40%] lg:w-[30%]"
           >
             <div className="flex flex-col justify-center items-center gap-2">
               <h3 className="text-2xl font-bold text-gray-800">LMS Login</h3>
@@ -54,18 +54,18 @@ const LMSLogin = () => {
               value={enrollmentNo}
               placeholder="Enrollment no."
               onChange={(e) => setEnrollmentNo(e.target.value)}
-              className="bg-emerald-800/10 px-2 py-1 outline-0 border-2 rounded-md border-[#135106] text-xl placeholder:text-emerald-900/50"
+              className="bg-emerald-800/10 px-2 py-1 outline-0 border-2 rounded-md border-[#135106] text-sm placeholder:text-emerald-900/50 w-full"
             />
             <input
               type="password"
               value={password}
               placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-emerald-800/10 px-2 py-1 outline-0 border-2 rounded-md border-[#135106] text-xl placeholder:text-emerald-900/50"
+              className="bg-emerald-800/10 px-2 py-1 outline-0 border-2 rounded-md border-[#135106] text-sm placeholder:text-emerald-900/50 w-full"
             />
             <button
               type="submit"
-              className="bg-[#135106] rounded-3xl px-26 py-1 text-white text-xl mt-2 hover:bg-[#22850f]"
+              className="bg-[#135106] rounded-3xl text-center py-1 text-white text mt-2 hover:bg-[#22850f] w-[100%]"
             >
               Login
             </button>
