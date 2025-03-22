@@ -69,6 +69,7 @@ const LMSLogin = () => {
             >
               Login
             </button>
+            <Link className="text-sm text-blue-800 underline" to="/forgot-password">Forgot Password ?</Link>
             <div className="flex gap-2 text-sm">
               <p>Don't have an account ?</p>
               <Link to="/lms-register" className="text-emerald-900 underline">
