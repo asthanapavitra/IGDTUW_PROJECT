@@ -6,6 +6,7 @@ import 'remixicon/fonts/remixicon.css'
 import LMSLogin from "./pages/LMSLogin";
 import FacultyLogin from "./pages/FacultyLogin";
 import LMSDashboard from "./pages/LMSDashboard";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/lms-login" element={<LMSLogin />} />
+        <Route path='forgot-password' element={<ForgotPassword/>}/>
         <Route path="/faculty-login" element={<FacultyLogin />} />
         <Route path="/lms-register" element={<Register />} />
         <Route path="/lms-dashboard" element={<LMSDashboard/>} />
