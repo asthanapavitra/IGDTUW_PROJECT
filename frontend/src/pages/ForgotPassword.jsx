@@ -33,7 +33,7 @@ const ForgotPassword = () => {
     }
   };
   const handleQuestion = async() => {
-    if(answer==student.securityQuestion.answer){
+    if(answer.toLowerCase()==student.securityQuestion.answer.toLowerCase()){
       setStep(2);
     }
     else{
@@ -62,36 +62,38 @@ const ForgotPassword = () => {
     if (step == 1) {
       gsap.to(emailRef.current, {
         translateX: "110%",
-        duration: 0.5,
+        duration: 1,
       });
       gsap.to(questionRef.current, {
         translateX: "0%",
-        duration: 0.5,
+        duration: 1,
+        opacity:1,
       });
     } else if (step == 2) {
       gsap.to(emailRef.current, {
         translateX: "220%",
-        duration: 0.5,
+        duration: 1,
       });
       gsap.to(questionRef.current, {
         translateX: "110%",
-        duration: 0.5,
+        duration: 1,
       });
       gsap.to(passwordRef.current, {
         translateX: "0%",
-        duration: 0.5,
+        duration: 1,
+        opacity:1,
       });
     }
   }, [step]);
 
   return (
     <div className="h-screen flex flex-col justify-center items-center bg-[#1E7D32]">
-      <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col justify-center items-center ">
         <h1 className="text-white font-bold text-xl mb-1">Forgot Password?</h1>
-        <div className="absolute top-0 w-[300px] h-[80px] relative overflow-x-hidden rounded-md flex flex-col justify-center items-center gap-3">
+        <div className=" top-0 w-[300px] h-[80px] bg-white relative overflow-x-hidden rounded-md flex flex-col justify-center items-center gap-3">
           <div
             ref={passwordRef}
-            className="bg-white px-3 py-3 flex justify-center items-center rounded-md -translate-x-[220%] "
+            className="bg-white px-3 py-3 flex justify-center items-center rounded-md -translate-x-[220%] opacity-0"
           >
             <div className="flex gap-3 justify-center items-center ">
               <input
@@ -112,7 +114,7 @@ const ForgotPassword = () => {
           </div>
           <div
             ref={questionRef}
-            className="absolute top-0  h-full w-full  bg-white px-5 py-3 rounded-md -translate-x-[110%] flex  flex-col justify-center gap-1 "
+            className="absolute top-0 opacity-0 h-full w-full  bg-white px-5 py-3 rounded-md -translate-x-[110%] flex  flex-col justify-center gap-1 "
           >
             <h3 className=" tracking-tighter text-sm font-mono ml-2 ">
               {student && student.securityQuestion.question}
@@ -139,7 +141,7 @@ const ForgotPassword = () => {
           </div>
           <div
             ref={emailRef}
-            className="absolute top-0 bg-white px-3 py-3 rounded-md flex justify-center gap-3"
+            className="absolute top-3 bg-white px-3 py-3 rounded-md flex justify-center gap-2 w-full"
           >
             <input
               value={email}
@@ -148,7 +150,7 @@ const ForgotPassword = () => {
               }}
               type="text"
               placeholder="Enter your email"
-              className="bg-emerald-800/10 px-2 py-1 outline-0 border-2 rounded-md border-[#135106] text-sm placeholder:text-emerald-900/50 w-[80%]"
+              className="bg-emerald-800/10 px-2 outline-0 border-2 rounded-md border-[#135106] text-sm placeholder:text-emerald-900/50 w-[100%]"
             />
             <button
               onClick={() => {
