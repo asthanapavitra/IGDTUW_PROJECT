@@ -7,6 +7,10 @@ import LMSLogin from "./pages/LMSLogin";
 import FacultyLogin from "./pages/FacultyLogin";
 import LMSDashboard from "./pages/LMSDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
+import CoursePage from "./pages/CoursePage";
+import MyCourses from "./pages/MyCourses";
+import PdfViewer from "./pages/PdfViewer";
+import Profile from "./pages/Profile";
 
 const App = () => {
   return (
@@ -18,7 +22,11 @@ const App = () => {
         <Route path="/faculty-login" element={<FacultyLogin />} />
         <Route path="/lms-register" element={<Register />} />
         <Route path="/lms-dashboard" element={<LMSDashboard/>} />
+        <Route path="/my-courses" element={<MyCourses/>} />
         <Route path="/faculty-register" element={<Register />} />
+        <Route path="/course" element={<CoursePage />} />
+        <Route path="/pdf-viewer" element={<PdfViewer />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );
