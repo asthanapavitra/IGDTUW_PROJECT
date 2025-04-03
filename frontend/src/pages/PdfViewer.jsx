@@ -15,7 +15,6 @@ const PdfViewer = () => {
       setNumPages(pdf.numPages);
       const container = canvasContainerRef.current;
       container.innerHTML = ""; // clear existing canvases
-
       for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
         pdf.getPage(pageNumber).then((page) => {
           const viewport = page.getViewport({ scale: 1.5 });

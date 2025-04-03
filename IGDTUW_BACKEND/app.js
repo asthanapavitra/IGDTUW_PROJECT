@@ -11,7 +11,8 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const studentRouter=require('./routes/studentRouter')
 const updatePasswordRouter=require('./routes/updatePasswordRoute')
-
+const facultyRouter=require('./routes/facultyRouter')
+const adminRouter=require('./routes/adminRouter')
 const port=process.env.PORT||5000;
 
 
@@ -28,6 +29,8 @@ app.use(flash());
 app.use(express.urlencoded({extended:true}));
 app.use('/student',studentRouter);
 app.use('/update-password',updatePasswordRouter);
+app.use('/faculty',facultyRouter);
+app.use('/admin',adminRouter);
 app.listen(port,()=>{
     console.log("Server is running on port ",port);
 })

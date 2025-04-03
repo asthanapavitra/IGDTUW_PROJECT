@@ -14,28 +14,30 @@ const LMSProtectedWrapper = ({ children }) => {
       navigate("/lms-login");
     }
     else{
-      axios.get(`${import.meta.env.VITE_BASE_URL}/student/dashboard`,{
+      try{
+      const response =await axios.get(`${import.meta.env.VITE_BASE_URL}/student/dashboard`,{
         headers:{
           Authorization: `Bearers ${token}`
         }
       })
-      .then((response)=>{
-        if(response.status==201){
+     
+      if(response.status==201){
+          console.log(response.data.student);
           setStudent(response.data.student);
           setIsLoading(false)
-          console.log("Student set")
-        }
-      })
-      .catch((err)=>{
+         
+      }
+   
+      }catch(err){
         console.log(err.response.data.error);
         localStorage.removeItem("token");
         setIsLoading(false)
         navigate('/lms-login');
-      })
+      }
       
     }
 
-  }, [token]);
+  }, []);
   if(isLoading){
     return (
       <div>Loading...</div>

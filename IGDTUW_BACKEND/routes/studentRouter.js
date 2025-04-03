@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { body } = require("express-validator");
 const userController = require("../controllers/userController");
-const { isLoggedIn } = require("../middlewares/isLoggedIn");
+const { isLoggedIn } = require("../middlewares/isLoggedInStudent");
 router.get("/", (req, res) => {
   res.send("Hello World");
 });
@@ -53,7 +53,7 @@ router.get("/dashboard", isLoggedIn, (req, res) => {
 });
 
 router.get("/logout", isLoggedIn, (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("studentToken");
   res.status(200).json({ msg: "Logged out successfully" });
 });
 module.exports = router;

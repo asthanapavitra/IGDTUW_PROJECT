@@ -6,7 +6,7 @@ import { StudentDataContext } from "../context/StudentContext";
 const LMSLogin = () => {
   const [enrollmentNo, setEnrollmentNo] = useState("");
   const [password, setPassword] = useState("");
-  const { student, setStudent } = useContext(StudentDataContext);
+  const { setStudent } = useContext(StudentDataContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {

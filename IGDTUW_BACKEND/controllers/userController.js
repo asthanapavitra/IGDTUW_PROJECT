@@ -48,7 +48,7 @@ module.exports.loginUser = async (req, res) => {
       return res.status(401).json({ errors: [{ msg: "Invalid credentials" }] });
     }
     const token = jwt.sign({ id: student._id }, process.env.JWT_SECRET);
-    res.cookie("token", token, {
+    res.cookie("studentToken", token, {
       httpOnly: true,
     });
     student.password = undefined; // Exclude password from the response
