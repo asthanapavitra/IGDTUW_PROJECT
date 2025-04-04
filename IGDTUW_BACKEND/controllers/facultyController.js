@@ -10,12 +10,16 @@ const registerFaculty = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { fullName, email, facultyId, password ,department} = req.body;
+    const { fullName, email, facultyId, password, department } = req.body;
 
     // Check if faculty with the same email or facultyId already exists
-    const existingFaculty = await Faculty.findOne({ $or: [{ email }, { facultyId }] });
+    const existingFaculty = await Faculty.findOne({
+      $or: [{ email }, { facultyId }],
+    });
     if (existingFaculty) {
-      return res.status(400).json({errors: [{message: "Faculty with this email or ID already exists"}] });
+      return res.status(400).json({
+        errors: [{ message: "Faculty with this email or ID already exists" }],
+      });
     }
 
     // Hash the password
@@ -27,12 +31,15 @@ const registerFaculty = async (req, res) => {
       email,
       facultyId,
       department,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
-    res.status(201).json({ message: "Faculty registered successfully", faculty: newFaculty });
+    res.status(201).json({
+      message: "Faculty registered successfully",
+      faculty: newFaculty,
+    });
   } catch (error) {
-    res.status(500).json({ errors:[{message: error.message }]});
+    res.status(500).json({ errors: [{ message: error.message }] });
   }
 };
 
@@ -44,14 +51,18 @@ module.exports.loginFaculty = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { password, facultyId} = req.body;
-    let faculty= await Faculty.findOne({ facultyId }).select("+password");
+    const { password, facultyId } = req.body;
+    let faculty = await Faculty.findOne({ facultyId }).select("+password");
     if (!faculty) {
-      return res.status(400).json({ errors: [{ message: "Invalid credentials" }] });
+      return res
+        .status(400)
+        .json({ errors: [{ message: "Invalid credentials" }] });
     }
     const isMatch = await faculty.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ errors: [{ message: "Invalid credentials" }] });
+      return res
+        .status(401)
+        .json({ errors: [{ message: "Invalid credentials" }] });
     }
     const token = faculty.generateToken();
     res.cookie("facultyToken", token, {
@@ -60,7 +71,32 @@ module.exports.loginFaculty = async (req, res) => {
     faculty.password = undefined; // Exclude password from the response
     res.status(201).json({ token, faculty });
   } catch (err) {
-    res.status(500).json({errors: [{message:err.message }]});
+    res.status(500).json({ errors: [{ message: err.message }] });
   }
-  
+};
+
+module.exports.getAllFaculty = async (req, res) => {
+  try {
+    const faculties = await Faculty.find({}).select("-password");
+    if (!faculties) {
+      return res
+        .status(404)
+        .json({ errors: { message: "No faculties found" } });
+    }
+    res.status(200).json({ faculties });
+  } catch (err) {
+    res.status(500).json({ erros: { message: err.message } });
+  }
+};
+
+module.exports.getFaculty = async (req, res) => {
+  try {
+    const faculty = await Faculty.findById(req.params.id).select("-password");
+    if (!faculty) {
+      return res.status(404).json({ errors: { message: "Not found" } });
+    }
+    res.status(200).json({ faculty });
+  } catch (err) {
+    res.status(500).json({ erros: { message: err.message } });
+  }
 };

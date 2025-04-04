@@ -13,8 +13,11 @@ import PdfViewer from "./pages/PdfViewer";
 import StudentProfile from "./pages/StudentProfile";
 import LMSProtectedWrapper from "./pages/LMSProtectedWrapper";
 import FacultyProtectedWrapper from "./pages/FacultyProtectedWrapper";
+import AdminProtectedWrapper from "./pages/AdminProtectedWrapper";
+import AdminDashboard from "./pages/AdminDashboard";
 
 import FacultyDashBoard from "./pages/FacultyDashBoard";
+import AdminLogin from "./pages/AdminLogin";
 
 const App = () => {
   return (
@@ -25,6 +28,7 @@ const App = () => {
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="/faculty-login" element={<FacultyLogin />} />
         <Route path="/lms-register" element={<StudentRegister />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
         <Route
           path="/faculty-dashboard"
           element={
@@ -39,6 +43,14 @@ const App = () => {
             <LMSProtectedWrapper>
               <LMSDashboard />
             </LMSProtectedWrapper>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <AdminProtectedWrapper>
+              <AdminDashboard />
+            </AdminProtectedWrapper>
           }
         />
         <Route
