@@ -5,14 +5,16 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import StudentContext from "./context/StudentContext.jsx";
 import FacultyContext from "./context/FacultyContext.jsx";
+import AdminContext from "./context/AdminContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <StudentContext>
       <FacultyContext>
-      <App />
+        <AdminContext>
+          <App />
+        </AdminContext>
       </FacultyContext>
-      
     </StudentContext>
   </BrowserRouter>
 );
