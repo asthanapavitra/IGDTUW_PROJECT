@@ -10,7 +10,7 @@ const registerFaculty = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { fullName, email, facultyId, password } = req.body;
+    const { fullName, email, facultyId, password ,department} = req.body;
 
     // Check if faculty with the same email or facultyId already exists
     const existingFaculty = await Faculty.findOne({ $or: [{ email }, { facultyId }] });
@@ -26,6 +26,7 @@ const registerFaculty = async (req, res) => {
       fullName,
       email,
       facultyId,
+      department,
       password: hashedPassword
     });
 

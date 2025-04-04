@@ -34,12 +34,20 @@ const facultySchema =  mongoose.Schema({
     minLength: [6, "Password must contain atleast 6 or more characters"],
     select: false,
   },
-  allotedDepartments:[{
+  department:{
     type:String,
+    required:true
+  },
+  allotedDepartments:[{
+     department:String,
+     subject:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Subject"
+     },
+     section:String,
+     semester:String,
   }],
-  subjects: [{
-    type:String
-  }],
+ 
 });
 
 facultySchema.statics.hashPassword = async function (password) {

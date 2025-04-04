@@ -1,6 +1,6 @@
 const Faculty = require("../models/FacultyModel");
 const jwt = require("jsonwebtoken");
-module.exports.isLoggedIn = async (req, res, next) => {
+module.exports.isLoggedInFaculty = async (req, res, next) => {
   try {
     let token = req.cookies?.facultyToken || req.headers.authorization?.split(" ")[1];
     if (!token) {
