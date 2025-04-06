@@ -1,6 +1,6 @@
 const express = require("express");
 const { body } = require("express-validator");
-const { registerAdmin, loginAdmin, logoutAdmin, getAdminDashboard } = require("../controllers/adminController");
+const { registerAdmin, loginAdmin, logoutAdmin, getAdminDashboard,allotDepartment } = require("../controllers/adminController");
 const { isLoggedInAdmin } = require("../middlewares/isLoggedInAdmin");
 
 const router = express.Router();
@@ -25,6 +25,8 @@ router.post(
   ],
   loginAdmin
 );
+
+router.post('/allot-department/:id',isLoggedInAdmin,allotDepartment);
 
 // Admin Dashboard Route (Protected)
 router.get("/dashboard", isLoggedInAdmin, getAdminDashboard);

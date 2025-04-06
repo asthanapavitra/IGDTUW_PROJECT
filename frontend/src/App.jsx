@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 
 import FacultyDashBoard from "./pages/FacultyDashBoard";
 import AdminLogin from "./pages/AdminLogin";
+import AllotmentDashboard from "./pages/AllotmentDashboard";
 
 const App = () => {
   return (
@@ -52,7 +53,14 @@ const App = () => {
               <AdminDashboard />
             </AdminProtectedWrapper>
           }
-        />
+        /><Route
+        path="/allotment-dashboard"
+        element={
+          <AdminProtectedWrapper>
+            <AllotmentDashboard />
+          </AdminProtectedWrapper>
+        }
+      />
         <Route
           path="/my-courses"
           element={
