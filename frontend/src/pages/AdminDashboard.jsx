@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import AllotmentDashboard from "./AllotmentDashboard";
 
 const AdminDashboard = () => {
   const [faculties, setFaculties] = useState([]);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: {
       firstName: "",
@@ -68,6 +71,11 @@ const AdminDashboard = () => {
       console.log(err);
     }
   };
+
+  const goToAllotment = (id)=>{
+    localStorage.setItem("facultyId",id);
+    navigate('/allotment-dashboard');
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-6">
@@ -137,20 +145,22 @@ const AdminDashboard = () => {
               required
             />
             <select
-                value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className=""
-              >
-                <option value="">Select Department</option>{" "}
-                <option value="CSE">CSE</option>
-                <option value="MAE">MAE</option>
-                <option value="IT">IT</option>
-                <option value="ECE">ECE</option>
-                <option value="AI">AI</option>
-                <option value="CSE-AI">CSE-AI</option>
-                <option value="ECE-AI">ECE-AI</option>
-                <option value="AI-ML">AI-ML</option>
-              </select>
+              value={formData.department}
+              onChange={(e) =>
+                setFormData({ ...formData, department: e.target.value })
+              }
+              className=""
+            >
+              <option value="">Select Department</option>{" "}
+              <option value="CSE">CSE</option>
+              <option value="MAE">MAE</option>
+              <option value="IT">IT</option>
+              <option value="ECE">ECE</option>
+              <option value="AI">AI</option>
+              <option value="CSE-AI">CSE-AI</option>
+              <option value="ECE-AI">ECE-AI</option>
+              <option value="AI-ML">AI-ML</option>
+            </select>
             <input
               type="password"
               placeholder="Password"
@@ -206,16 +216,10 @@ const AdminDashboard = () => {
                     </td>
                     <td className="border px-4 py-2 space-x-2">
                       <button
-                        onClick={() => setSelectedFacultyId(f.id)}
+                        onClick={() => goToAllotment(f._id)}
                         className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
                       >
-                        Allot
-                      </button>
-                      <button
-                        onClick={() => handleDeleteFaculty(f.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                      >
-                        Delete
+                        Update
                       </button>
                     </td>
                   </tr>

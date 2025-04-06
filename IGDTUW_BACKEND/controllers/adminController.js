@@ -1,6 +1,7 @@
 const Admin = require("../models/AdminModel");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
+const Faculty = require("../models/FacultyModel");
 
 // Register Admin (Only One Admin Allowed)
 const registerAdmin = async (req, res) => {
@@ -16,13 +17,9 @@ const registerAdmin = async (req, res) => {
     // Check if an admin already exists
     const existingAdmin = await Admin.findOne();
     if (existingAdmin) {
-      return res
-        .status(400)
-        .json({
-          errors: [
-            { message: "Admin already exists. Only one admin allowed." },
-          ],
-        });
+      return res.status(400).json({
+        errors: [{ message: "Admin already exists. Only one admin allowed." }],
+      });
     }
 
     // Create admin
@@ -94,4 +91,36 @@ const logoutAdmin = (req, res) => {
   res.status(200).json({ message: "Admin logged out successfully" });
 };
 
-module.exports = { registerAdmin, loginAdmin, getAdminDashboard, logoutAdmin };
+const allotDepartment = async (req, res) => {
+  const facultyId = req.params.id;
+  const faculty = await Faculty.findOne({ _id: facultyId });
+  if (!faculty) {
+    return res.status(400).json({ message: "Faculty not found" });
+  }
+  const { department, subject, section, semester } = req.body;
+  const allotment = { department, subject, section, semester };
+  faculty.allotedDepartments.push(allotment);
+  await faculty.save();
+  return res.status(200).json({ message: "Department allotted successfully" });
+};
+
+module.exports.deleteAllotment = async(req,res)=>{
+  const facultyId = req.params.id;
+  const faculty = await Faculty.findOne({ _id: facultyId });
+  if (!faculty) {
+    return res.status(400).json({ message: "Faculty not found" });
+  }
+  const { department, subject, section, semester } = req.body;
+  const allotment = { department, subject, section, semester };
+  faculty.allotedDepartments.push(allotment);
+  await faculty.save();
+  return res.status(200).json({ message: "Department allotted successfully" });
+}
+
+module.exports = {
+  registerAdmin,
+  loginAdmin,
+  getAdminDashboard,
+  logoutAdmin,
+  allotDepartment,
+};

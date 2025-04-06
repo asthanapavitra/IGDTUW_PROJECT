@@ -57,6 +57,16 @@ router.get(
 );
 
 router.get("/get-faculty/:id", isLoggedInAdmin, facultyController.getFaculty);
+router.put(
+  "/update-faculty/:id",
+  isLoggedInAdmin,
+  facultyController.updateFaculty
+);
+router.delete(
+  "/delete-faculty/:id",
+  isLoggedInAdmin,
+  facultyController.deleteFaculty
+);
 
 router.get("/logout", isLoggedInFaculty, (req, res) => {
   res.clearCookie("facultyToken");

@@ -92,10 +92,37 @@ module.exports.getAllFaculty = async (req, res) => {
 module.exports.getFaculty = async (req, res) => {
   try {
     const faculty = await Faculty.findById(req.params.id).select("-password");
+    // console.log(faculty);
     if (!faculty) {
       return res.status(404).json({ errors: { message: "Not found" } });
     }
     res.status(200).json({ faculty });
+  } catch (err) {
+    res.status(500).json({ erros: { message: err.message } });
+  }
+};
+
+module.exports.updateFaculty = async (req, res) => {
+  try {
+    const faculty = await Faculty.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!faculty) {
+      return res.status(404).json({ errors: { message: "Faculty not found" } });
+    }
+    res.status(200).json({ faculty });
+  } catch (err) {
+    res.status(500).json({ erros: { message: err.message } });
+  }
+};
+
+module.exports.deleteFaculty = async (req, res) => {
+  try {
+    const faculty = await Faculty.findByIdAndDelete(req.params.id);
+    if (!faculty) {
+      return res.status(404).json({ erros: { message: "Faculty not found" } });
+    }
+    res.status(200).json({ message: "Faculty deleted successfully" });
   } catch (err) {
     res.status(500).json({ erros: { message: err.message } });
   }
