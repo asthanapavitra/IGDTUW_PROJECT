@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const Faculty = require("../models/FacultyModel");
 
+const Allotment=require('../models/AllotmentModel')
 // Register Admin (Only One Admin Allowed)
 const registerAdmin = async (req, res) => {
   try {
@@ -99,20 +100,37 @@ const allotDepartment = async (req, res) => {
   }
   const { department, subject, section, semester } = req.body;
   const allotment = { department, subject, section, semester };
-  faculty.allotedDepartments.push(allotment);
+  const allotmentExists = faculty.allotedDepartments.find(
+    (allotment) =>
+      allotment.department === department &&
+      allotment.subject === subject &&
+      allotment.section === section &&
+      allotment.semester === semester
+  );
+  if (allotmentExists) {
+    return res.status(400).json({ message: "Allotment already exists" });
+  }
+  const newAllotment=await Allotment.create(allotment);
+
+  faculty.allotedDepartments.push(newAllotment._id);
   await faculty.save();
-  return res.status(200).json({ message: "Department allotted successfully" });
+  const populatedFaculty = await Faculty.findById(faculty._id).populate("allotedDepartments");
+  return res.status(200).json({ message: "Department allotted successfully",allotments:populatedFaculty.allotedDepartments });
 };
 
-module.exports.deleteAllotment = async(req,res)=>{
-  const facultyId = req.params.id;
+const deleteAllotment = async(req,res)=>{
+  const facultyId = req.params.facultyId;
+  const allotmentId=req.params.allotmentId;
   const faculty = await Faculty.findOne({ _id: facultyId });
   if (!faculty) {
     return res.status(400).json({ message: "Faculty not found" });
   }
-  const { department, subject, section, semester } = req.body;
-  const allotment = { department, subject, section, semester };
-  faculty.allotedDepartments.push(allotment);
+  
+
+  faculty.allotedDepartments = faculty.allotedDepartments.filter(
+    (id) => id.toString() !== allotmentId
+  );
+  await Allotment.findByIdAndDelete(allotmentId);
   await faculty.save();
   return res.status(200).json({ message: "Department allotted successfully" });
 }
@@ -123,4 +141,5 @@ module.exports = {
   getAdminDashboard,
   logoutAdmin,
   allotDepartment,
+  deleteAllotment
 };

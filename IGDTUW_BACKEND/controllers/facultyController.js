@@ -77,7 +77,7 @@ module.exports.loginFaculty = async (req, res) => {
 
 module.exports.getAllFaculty = async (req, res) => {
   try {
-    const faculties = await Faculty.find({}).select("-password");
+    const faculties = await Faculty.find({}).select("-password").populate("allotedDepartments");
     if (!faculties) {
       return res
         .status(404)
@@ -91,7 +91,7 @@ module.exports.getAllFaculty = async (req, res) => {
 
 module.exports.getFaculty = async (req, res) => {
   try {
-    const faculty = await Faculty.findById(req.params.id).select("-password");
+    const faculty = await Faculty.findById(req.params.id).select("-password").populate("allotedDepartments");
     // console.log(faculty);
     if (!faculty) {
       return res.status(404).json({ errors: { message: "Not found" } });

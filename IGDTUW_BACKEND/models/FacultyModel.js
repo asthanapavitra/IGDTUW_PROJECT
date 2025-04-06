@@ -38,14 +38,12 @@ const facultySchema =  mongoose.Schema({
     type:String,
     required:true
   },
-  allotedDepartments:[{
-     department:String,
-     subject:{
-      type:String,
-     },
-     section:String,
-     semester:String,
-  }],
+  allotedDepartments:[
+    {
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Allotment"
+    }
+  ],
  
 });
 

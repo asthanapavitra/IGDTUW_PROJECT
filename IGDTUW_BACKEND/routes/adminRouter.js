@@ -1,6 +1,6 @@
 const express = require("express");
 const { body } = require("express-validator");
-const { registerAdmin, loginAdmin, logoutAdmin, getAdminDashboard,allotDepartment } = require("../controllers/adminController");
+const { registerAdmin, loginAdmin, logoutAdmin, getAdminDashboard,allotDepartment,deleteAllotment } = require("../controllers/adminController");
 const { isLoggedInAdmin } = require("../middlewares/isLoggedInAdmin");
 
 const router = express.Router();
@@ -27,6 +27,7 @@ router.post(
 );
 
 router.post('/allot-department/:id',isLoggedInAdmin,allotDepartment);
+router.get('/delete-allotment/:facultyId/:allotmentId',isLoggedInAdmin,deleteAllotment)
 
 // Admin Dashboard Route (Protected)
 router.get("/dashboard", isLoggedInAdmin, getAdminDashboard);

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AllotmentDashboard = () => {
+  const navigate=useNavigate();
   const [faculty, setFaculty] = useState({
     fullName: { firstName: "", lastName: "" },
     email: "",
@@ -19,6 +21,9 @@ const AllotmentDashboard = () => {
   const facultyId = localStorage.getItem("facultyId");
 
   useEffect(() => {
+    if(!facultyId){
+    navigate('/admin-dashboard');
+    }
     async function fetchData() {
       const res = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/faculty/get-faculty/${facultyId}`,
@@ -34,7 +39,7 @@ const AllotmentDashboard = () => {
     }
 
     if (facultyId) fetchData();
-  }, [facultyId]);
+  }, [faculty]);
 
   const handleUpdateInfo = async (e) => {
     e.preventDefault();
@@ -57,33 +62,72 @@ const AllotmentDashboard = () => {
 
   const handleAddAllotment = async (e) => {
     e.preventDefault();
-    await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/admin/allot-department/${facultyId}`,
-      newAllotment,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    setAllotments([...allotments, newAllotment]);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/admin/allot-department/${facultyId}`,
+        newAllotment,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log(response.data.allotments);
+        setAllotments(response.data.allotments);}
+    } catch (err) {
+      console.log(err);
+    }
     setNewAllotment({ department: "", subject: "", section: "", semester: "" });
   };
 
-  const handleDeleteAllotment = async (index) => {
-    await fetch(
-      `${
-        import.meta.env.VITE_BAST_URL
-      }/faculty/${facultyId}/allotment/${index}`,
-      {
-        method: "DELETE",
+  const handleDeleteAllotment = async (allotmentId, index) => {
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/admin/delete-allotment/${facultyId}/${allotmentId}`,
+     
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        const updated = [...allotments];
+        updated.splice(index, 1);
+        setAllotments(updated);
       }
-    );
-    const updated = [...allotments];
-    updated.splice(index, 1);
-    setAllotments(updated);
+    } catch (err) {
+      console.log(err);
+    }
   };
-
+  const deleteFaculty = async () => {
+    const confirmed = window.confirm("Are you sure you want to delete this faculty?");
+    if (!confirmed) return;
+  
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BASE_URL}/faculty/delete-faculty/${facultyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        localStorage.removeItem("facultyId");
+        alert("Faculty deleted successfully.");
+        navigate('/admin-dashboard');
+      }
+    } catch (err) {
+      console.error("Error deleting faculty:", err);
+      alert("Something went wrong while deleting the faculty.");
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-10 px-4 md:px-10">
       <div className="max-w-6xl mx-auto space-y-12">
@@ -148,13 +192,21 @@ const AllotmentDashboard = () => {
               }
               className="p-3 border border-gray-300 rounded-md"
             />
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 flex gap-2">
               <button
                 type="submit"
                 className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition w-full md:w-auto"
               >
                 Update Info
               </button>
+              <button
+
+                onClick={deleteFaculty}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition w-full md:w-auto"
+              >
+                Delete Faculty
+              </button>
+              
             </div>
           </form>
         </div>
@@ -235,14 +287,16 @@ const AllotmentDashboard = () => {
               </thead>
               <tbody>
                 {allotments.map((a, i) => (
+                  
                   <tr key={i} className="hover:bg-gray-50 border-b transition">
                     <td className="p-3">{a.department}</td>
                     <td className="p-3">{a.subject}</td>
                     <td className="p-3">{a.section}</td>
                     <td className="p-3">{a.semester}</td>
+                    
                     <td className="p-3">
                       <button
-                        onClick={() => handleDeleteAllotment(i)}
+                        onClick={() => handleDeleteAllotment(a._id, i)}
                         className="text-red-500 hover:text-red-700 font-medium"
                       >
                         Delete
@@ -250,6 +304,7 @@ const AllotmentDashboard = () => {
                       {/* Edit button can be added here */}
                     </td>
                   </tr>
+               
                 ))}
               </tbody>
             </table>
