@@ -39,7 +39,7 @@ const AllotmentDashboard = () => {
     }
 
     if (facultyId) fetchData();
-  }, [faculty]);
+  }, [facultyId]);
 
   const handleUpdateInfo = async (e) => {
     e.preventDefault();
@@ -73,7 +73,7 @@ const AllotmentDashboard = () => {
         }
       );
       if (response.status === 200) {
-        console.log(response.data.allotments);
+        // console.log(response.data.allotments);
         setAllotments(response.data.allotments);}
     } catch (err) {
       console.log(err);
@@ -301,6 +301,7 @@ const AllotmentDashboard = () => {
                       >
                         Delete
                       </button>
+                     
                       {/* Edit button can be added here */}
                     </td>
                   </tr>
