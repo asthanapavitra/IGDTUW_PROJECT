@@ -33,7 +33,9 @@ const LMSLogin = () => {
     setPassword("");
   };
   return (
+    
     <div className="relative h-screen bg-[url('https://d2lk14jtvqry1q.cloudfront.net/media/slider21_139d43fffb.png')] bg-no-repeat bg-[length:100%_100%] md:bg-cover bg-center md:bg-fixed overflow-hidden">
+      <h2 className="text-4xl">Rishika</h2>
       <div className="min-h-full w-full z-50 bg-black/70">
         <div className="h-screen flex justify-center items-center">
           <form
