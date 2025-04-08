@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import FacultyDashBoard from "./pages/FacultyDashBoard";
 import AdminLogin from "./pages/AdminLogin";
 import AllotmentDashboard from "./pages/AllotmentDashboard";
+import AddMaterial from "./pages/AddMaterial";
 
 const App = () => {
   return (
@@ -94,6 +95,7 @@ const App = () => {
             </LMSProtectedWrapper>
           }
         />
+        <Route path='/add-materials' element={<AddMaterial/>}/>
       </Routes>
     </>
   );
