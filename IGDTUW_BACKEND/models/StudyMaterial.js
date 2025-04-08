@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
 
 const studyMaterialSchema = new mongoose.Schema({
+  unit:{
+    type: String,
+    required:true,
+  },
   file: [
     {
-      type: String,
-    },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Book",
+    }
   ],
   date: {
     type: Date,
