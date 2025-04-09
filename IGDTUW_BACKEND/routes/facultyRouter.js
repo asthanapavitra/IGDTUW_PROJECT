@@ -68,6 +68,8 @@ router.delete(
   facultyController.deleteFaculty
 );
 
+router.get('/:id',isLoggedInFaculty,facultyController.getFaculty);
+
 router.get("/logout", isLoggedInFaculty, (req, res) => {
   res.clearCookie("facultyToken");
   res.status(200).json({ errors: [{ message: "Logged out successfully" }] });

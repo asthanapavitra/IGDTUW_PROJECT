@@ -1,23 +1,14 @@
 import React, { useState } from "react";
 import { ArrowLeft, Trash2, UploadCloud } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export default function AddMaterial({
-  allotment = { subject: "Sample Subject", materials: [
-    {
-      unit: "Unit 1",
-      file: ["Introduction.pdf", "Lecture1_Slides.pptx"],
-    },
-    {
-      unit: "Unit 2",
-      file: ["Process_Scheduling.pdf"],
-    },
-    {
-      unit: "Unit 4",
-      file: ["Memory_Management_Notes.pdf", "Extra_Reading.docx"],
-    },
-  ], },
-  onBack = () => {},
-}) {
+export default function AddMaterial() {
+  const Location=useLocation();
+  const navigate=useNavigate();
+  const onBack=()=>{
+    navigate(-1);
+  }
+  const allotment=Location.state?.allotment;
   const [selectedUnit, setSelectedUnit] = useState("Unit 1");
   const [newFile, setNewFile] = useState("");
 
@@ -103,12 +94,12 @@ export default function AddMaterial({
                         key={i}
                         className="flex justify-between items-center bg-gray-50 rounded-lg px-4 py-2 shadow-sm hover:shadow-md"
                       >
-                        <span className="text-gray-700 font-medium">{f}</span>
+                        <span className="text-gray-700 font-medium truncate max-w-[70%] sm:max-w-[85%]">{f}</span>
                         <button
                           onClick={() => handleDelete(f)}
                           className="text-red-500 hover:text-red-700 flex items-center gap-1"
                         >
-                          <Trash2 className="w-4 h-4" /> Delete
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </li>
                     ))

@@ -24,6 +24,7 @@ const FacultyLogin = () => {
         if (res.status == 201) {
           localStorage.setItem("token",res.data.token);
           setfaculty(res.data.faculty);
+          console.log(res.data.faculty);
           navigate("/faculty-dashboard");
         }
       } catch (err) {

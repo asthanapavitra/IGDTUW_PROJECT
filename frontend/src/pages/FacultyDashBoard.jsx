@@ -1,45 +1,43 @@
 import { BookOpen, User } from "lucide-react";
+import { useContext, useState, useEffect } from "react";
+import { FacultyDataContext } from "../context/FacultyContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const dummyFaculty = {
-  fullName: { firstName: "Ananya", lastName: "Sharma" },
-  email: "ananya@igdtuw.ac.in",
-  facultyId: "FAC123",
-  department: "Computer Science",
-  allotedDepartments: [
-    {
-      _id: "1",
-      subject: "Data Structures",
-      department: "CSE",
-      section: "A",
-      semester: "4",
-      materials: [
-        {
-          unit: "Unit 1",
-          file: ["Stacks.pdf", "Queues.pdf"],
-        },
-        {
-          unit: "Unit 2",
-          file: ["Trees.pdf"],
-        },
-      ],
-    },
-    {
-      _id: "2",
-      subject: "Operating Systems",
-      department: "CSE",
-      section: "B",
-      semester: "6",
-      materials: [],
-    },
-  ],
-};
+export default function FacultyDashboard() {
+  const { faculty } = useContext(FacultyDataContext);
+  const [allotments, setAllotments] = useState([]);
+  const navigate = useNavigate();
 
-export default function FacultyDashboard({ onSelectAllotment }) {
+  useEffect(() => {
+    const fetchAllotments = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/faculty/${faculty._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        setAllotments(res.data.faculty.allotedDepartments);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+    fetchAllotments();
+  }, [faculty]);
+
+  const onSelectAllotment = (allotment) => {
+    navigate("/add-materials", { state: { allotment } });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-12 tracking-tight">
-          👩‍🏫 Welcome, {dummyFaculty.fullName.firstName}
+          👩‍🏫 Welcome, {faculty.fullName.firstName}
         </h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -49,18 +47,29 @@ export default function FacultyDashboard({ onSelectAllotment }) {
               <User className="w-6 h-6" /> Faculty Info
             </h2>
             <div className="space-y-3 text-gray-700 text-base">
-              <p><strong>Name:</strong> {dummyFaculty.fullName.firstName} {dummyFaculty.fullName.lastName}</p>
-              <p><strong>Email:</strong> {dummyFaculty.email}</p>
-              <p><strong>Faculty ID:</strong> {dummyFaculty.facultyId}</p>
-              <p><strong>Department:</strong> {dummyFaculty.department}</p>
+              <p>
+                <strong>Name:</strong> {faculty.fullName.firstName}{" "}
+                {faculty.fullName.lastName}
+              </p>
+              <p>
+                <strong>Email:</strong> {faculty.email}
+              </p>
+              <p>
+                <strong>Faculty ID:</strong> {faculty.facultyId}
+              </p>
+              <p>
+                <strong>Department:</strong> {faculty.department}
+              </p>
             </div>
           </div>
 
           {/* Allotments */}
           <div className="col-span-2">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6">Your Allotments</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+              Your Allotments
+            </h2>
             <div className="space-y-6">
-              {dummyFaculty.allotedDepartments.map((allotment) => (
+              {allotments.map((allotment) => (
                 <div
                   key={allotment._id}
                   className="bg-white/70 backdrop-blur-md border border-white/30 rounded-2xl shadow-md p-6 flex justify-between items-center transition hover:scale-[1.01] hover:shadow-xl flex-col sm:flex-row gap-5"
@@ -70,14 +79,17 @@ export default function FacultyDashboard({ onSelectAllotment }) {
                       <BookOpen className="w-5 h-5" /> {allotment.subject}
                     </h3>
                     <p className="text-sm text-gray-600 mt-2">
-                      <span className="font-medium">Dept:</span> {allotment.department} &nbsp;|&nbsp;
-                      <span className="font-medium">Section:</span> {allotment.section} &nbsp;|&nbsp;
-                      <span className="font-medium">Semester:</span> {allotment.semester}
+                      <span className="font-medium">Dept:</span>{" "}
+                      {allotment.department} &nbsp;|&nbsp;
+                      <span className="font-medium">Section:</span>{" "}
+                      {allotment.section} &nbsp;|&nbsp;
+                      <span className="font-medium">Semester:</span>{" "}
+                      {allotment.semester}
                     </p>
                   </div>
                   <button
                     onClick={() => onSelectAllotment(allotment)}
-                    className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 rounded-xl font-medium shadow-sm hover:shadow-lg transition"
+                    className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2 rounded-xl font-medium shadow-sm hover:shadow-lg transition cursor-pointer"
                   >
                     View Details
                   </button>

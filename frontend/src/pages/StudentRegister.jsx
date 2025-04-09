@@ -27,13 +27,13 @@ const StudentRegister = () => {
       securityQuestion: { question, answer },
     };
 
-    console.log(student);
+    // console.log(student);
 
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/student/register`,
         student,
-        { withCredentials: true }
+        
       );
 
       if (res.status === 201) {

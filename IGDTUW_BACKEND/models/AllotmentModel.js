@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
 const allotmentSchema = new mongoose.Schema({
-  department: String,
+  department: {
+    type: String,
+  },
   subject: {
     type: String,
   },
-  section: String,
-  semester: String,
+  section: { type: String },
+  semester: { type: String },
   materials: [
     {
       type: mongoose.Schema.Types.ObjectId,
