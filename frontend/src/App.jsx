@@ -95,7 +95,14 @@ const App = () => {
             </LMSProtectedWrapper>
           }
         />
-        <Route path='/add-materials' element={<AddMaterial/>}/>
+        <Route
+          path="/add-materials"
+          element={
+            <FacultyProtectedWrapper>
+              <AddMaterial />
+            </FacultyProtectedWrapper>
+          }
+        />
       </Routes>
     </>
   );
