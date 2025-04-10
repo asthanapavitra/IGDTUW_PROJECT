@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const studyMaterialSchema = new mongoose.Schema({
   unit:{
-    type: String,
+    type: Number,
     required:true,
   },
   file: [

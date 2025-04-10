@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const BookSchema = mongoose.Schema({
-  name: { type: String, required: true },
+  fileName: { type: String, required: true },
   unit: { type: Number, required: true },
   faculty: {
     type: mongoose.Schema.Types.ObjectId,
@@ -9,13 +9,10 @@ const BookSchema = mongoose.Schema({
     required: true,
   },
   subject: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Subject",
-    required: true,
+    type:String
   },
   fileUrl: { type: String, required: true },
-  description: { type: String },
-  tags: [{ type: String }],
+ 
 });
 
 module.exports = mongoose.model("Book", BookSchema);

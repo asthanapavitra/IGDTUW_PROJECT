@@ -4,6 +4,10 @@ const { body } = require("express-validator");
 const facultyController = require("../controllers/facultyController");
 const { isLoggedInFaculty } = require("../middlewares/isLoggedInFaculty");
 const { isLoggedInAdmin } = require("../middlewares/isLoggedInAdmin");
+const { MongoClient, GridFSBucket } = require('mongodb');
+const mongoose = require('mongoose');
+const upload = require('../config/multer-config'); 
+
 router.get("/", (req, res) => {
   return res.status(200).send("Hello from faculty router");
 });
@@ -68,10 +72,20 @@ router.delete(
   facultyController.deleteFaculty
 );
 
-router.get('/:id',isLoggedInFaculty,facultyController.getFaculty);
+router.get("/:id", isLoggedInFaculty, facultyController.getFaculty);
 
 router.get("/logout", isLoggedInFaculty, (req, res) => {
   res.clearCookie("facultyToken");
   res.status(200).json({ errors: [{ message: "Logged out successfully" }] });
 });
+router.post(
+  "/upload-material/:allotmentId",
+  isLoggedInFaculty,
+  upload.single("file"),
+  facultyController.uploadDoc
+);
+
+router.get("/get-file/:fileId", facultyController.getPdf);
+router.get('/download-file/:fileId', facultyController.downloadFile)
+
 module.exports = router;
