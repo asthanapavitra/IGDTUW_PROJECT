@@ -100,7 +100,17 @@ module.exports.getFaculty = async (req, res) => {
   try {
     const faculty = await Faculty.findById(req.params.id)
       .select("-password")
-      .populate("allotedDepartments");
+      .populate({
+        path: "allotedDepartments",
+        populate: {
+          path: "materials",
+          populate: {
+            path: "file",
+            model: "Book",
+            match: { faculty: new mongoose.Types.ObjectId(req.faculty._id) }, // ✅ Filter by current faculty
+          },
+        },
+      });
     // console.log(faculty);
     if (!faculty) {
       return res.status(404).json({ errors: { message: "Not found" } });
@@ -143,7 +153,7 @@ module.exports.uploadDoc = async (req, res) => {
     const bucket = new mongoose.mongo.GridFSBucket(db, {
       bucketName: "uploads",
     });
-
+    // console.log(req.file);
     // 1. Stream file into GridFS
     const uploadStream = bucket.openUploadStream(req.file.originalname, {
       metadata: {
@@ -152,7 +162,7 @@ module.exports.uploadDoc = async (req, res) => {
       contentType: req.file.mimetype,
     });
     const uploadedFileId = uploadStream.id;
-    console.log(uploadedFileId);
+    // console.log(uploadedFileId);
     uploadStream.end(req.file.buffer);
 
     // 2. Wait for stream to finish before proceeding
@@ -161,12 +171,12 @@ module.exports.uploadDoc = async (req, res) => {
         const allotmentId = req.params.allotmentId;
         const { unit, subject, fileName } = req.body;
 
-        console.log("Upload complete. File ID:", uploadedFileId);
+        // console.log("Upload complete. File ID:", uploadedFileId);
 
         const book = await Book.create({
           fileName,
           unit: Number(unit),
-          faculty:  req.faculty?._id ,
+          faculty: req.faculty?._id,
           subject,
           fileUrl: `/faculty/files/${uploadedFileId}`, // Use this!
         });
@@ -184,11 +194,22 @@ module.exports.uploadDoc = async (req, res) => {
         }
 
         // 5. Attach to Allotment
-        await Allotment.findByIdAndUpdate(allotmentId, {
+        const allotment = await Allotment.findByIdAndUpdate(allotmentId, {
           $addToSet: { materials: studyMaterial._id },
         });
 
-        res.status(201).json({ message: "File uploaded successfully", book });
+        const all = await Allotment.findById(allotmentId).populate({
+          path: "materials",
+          populate: {
+            path: "file",
+            model: "Book",
+            match: { faculty: new mongoose.Types.ObjectId(req.faculty?._id) }, // ✅ Filter by current faculty
+          },
+        });
+
+        res
+          .status(201)
+          .json({ message: "File uploaded successfully", allotment: all });
       } catch (err) {
         console.error("Post-upload processing error:", err);
         res
@@ -211,6 +232,7 @@ module.exports.uploadDoc = async (req, res) => {
   }
 };
 
+//okay :)
 module.exports.getPdf = async (req, res) => {
   try {
     const fileId = req.params.fileId;
@@ -219,7 +241,9 @@ module.exports.getPdf = async (req, res) => {
     const bucket = new GridFSBucket(db, { bucketName: "uploads" });
 
     // 🔍 Check if file exists
-    const file = await db.collection("uploads.files").findOne({ _id: new ObjectId(fileId) });
+    const file = await db
+      .collection("uploads.files")
+      .findOne({ _id: new ObjectId(fileId) });
 
     console.log(file);
 
@@ -236,7 +260,6 @@ module.exports.getPdf = async (req, res) => {
     // 📥 Stream the file
     const downloadStream = bucket.openDownloadStream(new ObjectId(fileId));
     downloadStream.pipe(res);
-
   } catch (err) {
     console.error("Stream error:", err);
     res.status(500).json({ error: "Error retrieving file" });
@@ -249,7 +272,9 @@ module.exports.downloadFile = async (req, res) => {
     const db = mongoose.connection.db;
     const bucket = new GridFSBucket(db, { bucketName: "uploads" });
 
-    const file = await db.collection("uploads.files").findOne({ _id: new ObjectId(fileId) });
+    const file = await db
+      .collection("uploads.files")
+      .findOne({ _id: new ObjectId(fileId) });
 
     if (!file) {
       return res.status(404).json({ error: "File not found" });
@@ -262,9 +287,27 @@ module.exports.downloadFile = async (req, res) => {
 
     const downloadStream = bucket.openDownloadStream(new ObjectId(fileId));
     downloadStream.pipe(res);
-    
   } catch (err) {
     console.error("Download stream error:", err);
     res.status(500).json({ error: "Error downloading file" });
+  }
+};
+
+module.exports.getMaterials = async (req, res) => {
+  try {
+    const allotmentId = req.params.allotmentId;
+    const allotment = await Allotment.findById(allotmentId).populate({
+      path: "materials",
+      populate: {
+        path: "file",
+        model: "Book",
+        match: { faculty: new mongoose.Types.ObjectId(req.faculty?._id) }, // ✅ Filter by current faculty
+      },
+    });
+
+    res.status(200).json({ allotment });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 };

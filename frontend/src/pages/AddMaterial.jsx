@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Trash2, UploadCloud } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function AddMaterial() {
   const Location = useLocation();
@@ -8,19 +9,87 @@ export default function AddMaterial() {
   const onBack = () => {
     navigate(-1);
   };
-  const allotment = Location.state?.allotment;
+  // const allotment =
   const [selectedUnit, setSelectedUnit] = useState("Unit 1");
   const [fileName, setFileName] = useState("");
   const [fileObject, setFileObject] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [allotment, setAllotment] = useState(Location.state?.allotment);
+
+  useEffect(() => {
+    // try {
+    //   const fetchAllotment = async () => {
+    //     const res = await axios.get(
+    //       `${import.meta.env.VITE_BASE_URL}/faculty/get-materials/${
+    //         allotment._id
+    //       }`
+    //     );
+    //     if (res.status === 200) {
+    //       setAllotment(res.data.allotment);
+    //     }
+    //   };
+    //   fetchAllotment();
+    // } catch (err) {
+    //   console.log(err);
+    // }
+
+    if (allotment.materials.length > 0) {
+      const files = [];
+
+      allotment.materials.forEach((material) => {
+        material.file.forEach((f) => {
+          files.push({
+            unit: `Unit ${f.unit}`,
+            fileName: f.fileName,
+            fileUrl: f.fileUrl,
+          });
+        });
+      });
+      setUploadedFiles(files);
+      console.log(allotment);
+    }
+  }, [allotment]);
 
   // In handleUpload
-  const handleUpload = () => {
+  const handleUpload = (e) => {
+    // e.preventDefault();
     if (!fileObject || !fileName.trim()) {
       alert("Please select a file and enter a file name.");
       return;
     }
+    console.log(fileObject);
     alert(`Uploading "${fileName}" for ${selectedUnit}`);
     // You can now use fileObject to actually upload to your backend or cloud storage
+
+    const formData = new FormData();
+    formData.append("file", fileObject); // actual file
+    formData.append("fileName", fileName);
+    formData.append("unit", selectedUnit.replace("Unit ", ""));
+    formData.append("subject", allotment.subject);
+
+    const uploading = async () => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/faculty/upload-material/${
+            allotment._id
+          }`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        // console.log(res);
+        if(res.status==201){
+          setAllotment(res.data.allotment);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    uploading();
 
     setFileName("");
     setFileObject(null);
@@ -111,20 +180,24 @@ export default function AddMaterial() {
             >
               <h3 className="text-lg font-bold text-indigo-700 mb-3">{unit}</h3>
               <ul className="space-y-2">
-                {allotment.materials.find((m) => m.unit === unit)?.file
-                  ?.length > 0 ? (
-                  allotment.materials
-                    .find((m) => m.unit === unit)
-                    ?.file?.map((f, i) => (
+                {uploadedFiles.filter((f) => f.unit === unit).length > 0 ? (
+                  uploadedFiles
+                    .filter((f) => f.unit === unit)
+                    .map((f, i) => (
                       <li
                         key={i}
                         className="flex justify-between items-center bg-gray-50 rounded-lg px-4 py-2 shadow-sm hover:shadow-md"
                       >
-                        <span className="text-gray-700 font-medium truncate max-w-[70%] sm:max-w-[85%]">
-                          {f}
-                        </span>
+                        <a
+                          href={f.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 font-medium truncate max-w-[70%] sm:max-w-[85%]"
+                        >
+                          {f.fileName}
+                        </a>
                         <button
-                          onClick={() => handleDelete(f)}
+                          onClick={() => handleDelete(f.fileName)}
                           className="text-red-500 hover:text-red-700 flex items-center gap-1"
                         >
                           <Trash2 className="w-4 h-4" />

@@ -87,5 +87,6 @@ router.post(
 
 router.get("/get-file/:fileId", facultyController.getPdf);
 router.get('/download-file/:fileId', facultyController.downloadFile)
+router.get('/get-materials/:allotmentId',facultyController.getMaterials);
 
 module.exports = router;
