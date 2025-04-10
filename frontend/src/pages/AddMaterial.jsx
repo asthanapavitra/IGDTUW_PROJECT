@@ -3,18 +3,27 @@ import { ArrowLeft, Trash2, UploadCloud } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function AddMaterial() {
-  const Location=useLocation();
-  const navigate=useNavigate();
-  const onBack=()=>{
+  const Location = useLocation();
+  const navigate = useNavigate();
+  const onBack = () => {
     navigate(-1);
-  }
-  const allotment=Location.state?.allotment;
+  };
+  const allotment = Location.state?.allotment;
   const [selectedUnit, setSelectedUnit] = useState("Unit 1");
-  const [newFile, setNewFile] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [fileObject, setFileObject] = useState(null);
 
+  // In handleUpload
   const handleUpload = () => {
-    alert(`Uploading ${newFile} to ${selectedUnit}`);
-    setNewFile("");
+    if (!fileObject || !fileName.trim()) {
+      alert("Please select a file and enter a file name.");
+      return;
+    }
+    alert(`Uploading "${fileName}" for ${selectedUnit}`);
+    // You can now use fileObject to actually upload to your backend or cloud storage
+
+    setFileName("");
+    setFileObject(null);
   };
 
   const handleDelete = (fileName) => {
@@ -34,13 +43,16 @@ export default function AddMaterial() {
         </button>
 
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          Upload Materials – <span className="text-purple-700">{allotment.subject}</span>
+          Upload Materials –{" "}
+          <span className="text-purple-700">{allotment.subject}</span>
         </h1>
 
         {/* Upload Section */}
         <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-white/40 mb-10">
           <div className="mb-4">
-            <label className="block text-sm font-semibold mb-2">📚 Select Unit:</label>
+            <label className="block text-sm font-semibold mb-2">
+              📚 Select Unit:
+            </label>
             <select
               className="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
               value={selectedUnit}
@@ -56,28 +68,41 @@ export default function AddMaterial() {
 
           <div className="mb-4">
             <label className="block text-sm font-semibold mb-2">
-              📤 Upload Material (File Name):
+              📝 File Name (custom):
             </label>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                value={newFile}
-                onChange={(e) => setNewFile(e.target.value)}
-                placeholder="e.g., LectureNotes.pdf"
-                className="flex-1 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-              />
-              <button
-                onClick={handleUpload}
-                className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2 rounded-lg font-medium transition shadow-md hover:shadow-lg self-end"
-              >
-                <UploadCloud className="w-5 h-5" /> Upload
-              </button>
-            </div>
+            <input
+              type="text"
+              value={fileName}
+              onChange={(e) => setFileName(e.target.value)}
+              placeholder="e.g., LectureNotes.pdf"
+              className="w-full px-4 py-2 border rounded-lg border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 mb-3"
+            />{" "}
+            <label className="block text-sm font-semibold mb-2">
+              📁 Choose File:
+            </label>
+            <input
+              type="file"
+              onChange={(e) => {
+                if (e.target.files.length > 0) {
+                  setFileObject(e.target.files[0]);
+                }
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            />
           </div>
+
+          <button
+            onClick={handleUpload}
+            className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2 rounded-lg font-medium transition shadow-md hover:shadow-lg self-end"
+          >
+            <UploadCloud className="w-5 h-5" /> Upload
+          </button>
         </div>
 
         {/* Uploaded Materials */}
-        <h2 className="text-2xl font-semibold text-gray-700 mb-4">📂 Uploaded Materials</h2>
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+          📂 Uploaded Materials
+        </h2>
         <div className="space-y-6">
           {units.map((unit) => (
             <div
@@ -86,7 +111,8 @@ export default function AddMaterial() {
             >
               <h3 className="text-lg font-bold text-indigo-700 mb-3">{unit}</h3>
               <ul className="space-y-2">
-                {allotment.materials.find((m) => m.unit === unit)?.file?.length > 0 ? (
+                {allotment.materials.find((m) => m.unit === unit)?.file
+                  ?.length > 0 ? (
                   allotment.materials
                     .find((m) => m.unit === unit)
                     ?.file?.map((f, i) => (
@@ -94,7 +120,9 @@ export default function AddMaterial() {
                         key={i}
                         className="flex justify-between items-center bg-gray-50 rounded-lg px-4 py-2 shadow-sm hover:shadow-md"
                       >
-                        <span className="text-gray-700 font-medium truncate max-w-[70%] sm:max-w-[85%]">{f}</span>
+                        <span className="text-gray-700 font-medium truncate max-w-[70%] sm:max-w-[85%]">
+                          {f}
+                        </span>
                         <button
                           onClick={() => handleDelete(f)}
                           className="text-red-500 hover:text-red-700 flex items-center gap-1"
