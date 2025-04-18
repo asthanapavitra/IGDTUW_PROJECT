@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Trash2, UploadCloud } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft,Trash2, UploadCloud } from "lucide-react";
+import { useLocation,Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+
 
 export default function AddMaterial() {
   const Location = useLocation();
   const navigate = useNavigate();
+
   const onBack = () => {
     navigate(-1);
   };
@@ -17,22 +19,7 @@ export default function AddMaterial() {
   const [allotment, setAllotment] = useState(Location.state?.allotment);
 
   useEffect(() => {
-    // try {
-    //   const fetchAllotment = async () => {
-    //     const res = await axios.get(
-    //       `${import.meta.env.VITE_BASE_URL}/faculty/get-materials/${
-    //         allotment._id
-    //       }`
-    //     );
-    //     if (res.status === 200) {
-    //       setAllotment(res.data.allotment);
-    //     }
-    //   };
-    //   fetchAllotment();
-    // } catch (err) {
-    //   console.log(err);
-    // }
-
+    
     if (allotment.materials.length > 0) {
       const files = [];
 
@@ -42,11 +29,11 @@ export default function AddMaterial() {
             unit: `Unit ${f.unit}`,
             fileName: f.fileName,
             fileUrl: f.fileUrl,
+            id: f._id,
           });
         });
       });
       setUploadedFiles(files);
-      console.log(allotment);
     }
   }, [allotment]);
 
@@ -82,7 +69,7 @@ export default function AddMaterial() {
           }
         );
         // console.log(res);
-        if(res.status==201){
+        if (res.status == 201) {
           setAllotment(res.data.allotment);
         }
       } catch (err) {
@@ -95,8 +82,30 @@ export default function AddMaterial() {
     setFileObject(null);
   };
 
-  const handleDelete = (fileName) => {
+  const handleDelete = async (fileId) => {
+    const file = uploadedFiles.find((file) => file.id.toString() === fileId);
+
+    const uploadFileId = file.fileUrl.split("/").pop();
+
     alert(`Deleting ${fileName}`);
+    try {
+      let response = await axios.delete(
+        `${import.meta.env.VITE_BASE_URL}/faculty/delete-file/${
+          allotment._id
+        }/${uploadFileId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (response.status == 200) {
+        console.log("Deleted Successfully");
+        setAllotment(response.data.allotment);
+      }
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   const units = ["Unit 1", "Unit 2", "Unit 3", "Unit 4"];
@@ -174,6 +183,7 @@ export default function AddMaterial() {
         </h2>
         <div className="space-y-6">
           {units.map((unit) => (
+            
             <div
               key={unit}
               className="bg-white/80 backdrop-blur-md border border-white/30 rounded-xl p-5 shadow-sm"
@@ -188,16 +198,14 @@ export default function AddMaterial() {
                         key={i}
                         className="flex justify-between items-center bg-gray-50 rounded-lg px-4 py-2 shadow-sm hover:shadow-md"
                       >
-                        <a
-                          href={f.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                       
+                        <Link
+                          to={`/view-pdf/${f.fileUrl.split("/").pop()}`}
                           className="text-gray-700 font-medium truncate max-w-[70%] sm:max-w-[85%]"
-                        >
-                          {f.fileName}
-                        </a>
+                        >{f.fileName}</Link>
+
                         <button
-                          onClick={() => handleDelete(f.fileName)}
+                          onClick={() => handleDelete(f.id)}
                           className="text-red-500 hover:text-red-700 flex items-center gap-1"
                         >
                           <Trash2 className="w-4 h-4" />

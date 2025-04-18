@@ -80,11 +80,11 @@ const App = () => {
           }
         />
         <Route
-          path="/pdf-viewer"
+          path="/view-pdf/:fileId"
           element={
-            <LMSProtectedWrapper>
+           
               <PdfViewer />
-            </LMSProtectedWrapper>
+           
           }
         />
         <Route

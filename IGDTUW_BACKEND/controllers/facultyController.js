@@ -137,7 +137,7 @@ module.exports.updateFaculty = async (req, res) => {
 
 module.exports.deleteFaculty = async (req, res) => {
   try {
-    const faculty = await Faculty.findByIdAndDelete(req.params.id);
+    const faculty = await Faculty.findByIdAndDelete(req.faculty._id);
     if (!faculty) {
       return res.status(404).json({ erros: { message: "Faculty not found" } });
     }
@@ -244,9 +244,6 @@ module.exports.getPdf = async (req, res) => {
     const file = await db
       .collection("uploads.files")
       .findOne({ _id: new ObjectId(fileId) });
-
-    console.log(file);
-
     if (!file) {
       return res.status(404).json({ error: "File not found" });
     }
@@ -292,6 +289,65 @@ module.exports.downloadFile = async (req, res) => {
     res.status(500).json({ error: "Error downloading file" });
   }
 };
+module.exports.deleteFile = async (req, res) => {
+  try {
+    const fileId = req.params.fileId;
+    console.log(req.params.allotmentId)
+    const facultyId = req.faculty?._id;
+    const { ObjectId } = require("mongodb");
+    const db = mongoose.connection.db;
+    const bucket = new GridFSBucket(db, { bucketName: "uploads" });
+
+    // 1. Delete file from GridFS
+    await bucket.delete(new ObjectId(fileId));
+
+    // 2. Find and delete from Book model
+    const deletedBook = await Book.findOneAndDelete({ fileUrl: `/faculty/files/${fileId}` });
+
+    if (!deletedBook) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+
+    const { unit } = deletedBook;
+
+    // 3. Remove book from StudyMaterial
+    const studyMaterial = await StudyMaterial.findOne({ unit });
+
+    if (studyMaterial) {
+      studyMaterial.file.pull(deletedBook._id);
+      await studyMaterial.save();
+
+      // 4. Remove StudyMaterial if no books remain
+      if (studyMaterial.file.length === 0) {
+        await StudyMaterial.findByIdAndDelete(studyMaterial._id);
+
+        // 5. Update Allotment - remove StudyMaterial ID
+        await Allotment.findByIdAndUpdate(req.params.allotmentId, {
+          $pull: { materials: studyMaterial._id },
+        });
+      }
+    }
+
+    // 6. Return updated Allotment with populated materials and filtered files
+    const updatedAllotment = await Allotment.findById(req.params.allotmentId).populate({
+      path: "materials",
+      populate: {
+        path: "file",
+        model: "Book",
+        match: { faculty: new mongoose.Types.ObjectId(facultyId) },
+      },
+    });
+
+    res.status(200).json({
+      message: "File deleted and data updated successfully",
+      allotment:updatedAllotment,
+    });
+
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Failed to delete file", details: err.message });
+  }
+};
 
 module.exports.getMaterials = async (req, res) => {
   try {
@@ -311,3 +367,4 @@ module.exports.getMaterials = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+

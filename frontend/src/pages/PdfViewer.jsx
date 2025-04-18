@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/web/pdf_viewer.css";
+import { useParams } from "react-router-dom";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PdfViewer = () => {
+  const { fileId } = useParams(); // 👈 extract fileId from URL
   const [numPages, setNumPages] = useState(0);
   const canvasContainerRef = useRef();
-  const pdfUrl = "/U1_Lecture_1[1].pdf";
+  const pdfUrl = `${import.meta.env.VITE_BASE_URL}/faculty/get-file/${fileId}`; // 🔗 build full URL
 
   useEffect(() => {
     const loadingTask = pdfjsLib.getDocument(pdfUrl);
@@ -37,6 +39,7 @@ const PdfViewer = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4">
+      <h2 className="text-xl font-semibold ">📄 PDF Viewer</h2>
       <div ref={canvasContainerRef}></div>
     </div>
   );

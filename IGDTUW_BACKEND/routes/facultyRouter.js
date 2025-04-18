@@ -87,6 +87,8 @@ router.post(
 
 router.get("/get-file/:fileId", facultyController.getPdf);
 router.get('/download-file/:fileId', facultyController.downloadFile)
+router.delete("/delete-file/:allotmentId/:fileId", isLoggedInFaculty,facultyController.deleteFile);
+
 router.get('/get-materials/:allotmentId',facultyController.getMaterials);
 
 module.exports = router;
