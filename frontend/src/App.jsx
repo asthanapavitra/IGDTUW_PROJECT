@@ -15,7 +15,7 @@ import LMSProtectedWrapper from "./pages/LMSProtectedWrapper";
 import FacultyProtectedWrapper from "./pages/FacultyProtectedWrapper";
 import AdminProtectedWrapper from "./pages/AdminProtectedWrapper";
 import AdminDashboard from "./pages/AdminDashboard";
-
+import SubjectManagement from "./pages/SubjectManagement";
 import FacultyDashBoard from "./pages/FacultyDashBoard";
 import AdminLogin from "./pages/AdminLogin";
 import AllotmentDashboard from "./pages/AllotmentDashboard";
@@ -54,14 +54,23 @@ const App = () => {
               <AdminDashboard />
             </AdminProtectedWrapper>
           }
-        /><Route
-        path="/allotment-dashboard"
-        element={
-          <AdminProtectedWrapper>
-            <AllotmentDashboard />
-          </AdminProtectedWrapper>
-        }
-      />
+        />
+        <Route
+          path="/allotment-dashboard"
+          element={
+            <AdminProtectedWrapper>
+              <AllotmentDashboard />
+            </AdminProtectedWrapper>
+          }
+        />
+        <Route
+          path="/manage-subject"
+          element={
+            <AdminProtectedWrapper>
+              <SubjectManagement />
+            </AdminProtectedWrapper>
+          }
+        />
         <Route
           path="/my-courses"
           element={
@@ -70,7 +79,7 @@ const App = () => {
             </LMSProtectedWrapper>
           }
         />
-        
+
         <Route
           path="/course"
           element={
@@ -79,14 +88,7 @@ const App = () => {
             </LMSProtectedWrapper>
           }
         />
-        <Route
-          path="/view-pdf/:fileId"
-          element={
-           
-              <PdfViewer />
-           
-          }
-        />
+        <Route path="/view-pdf/:fileId" element={<PdfViewer />} />
         <Route
           path="/profile"
           element={
