@@ -13,6 +13,7 @@ const studentRouter=require('./routes/studentRouter')
 const updatePasswordRouter=require('./routes/updatePasswordRoute')
 const facultyRouter=require('./routes/facultyRouter')
 const adminRouter=require('./routes/adminRouter')
+const subjectRouter=require('./routes/subjectRouter')
 const port=process.env.PORT||5000;
 
 
@@ -31,6 +32,7 @@ app.use('/student',studentRouter);
 app.use('/update-password',updatePasswordRouter);
 app.use('/faculty',facultyRouter);
 app.use('/admin',adminRouter);
+app.use("/subject",subjectRouter);
 app.listen(port,()=>{
     console.log("Server is running on port ",port);
 })
