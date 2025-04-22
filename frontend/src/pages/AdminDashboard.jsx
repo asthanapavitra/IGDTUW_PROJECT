@@ -77,12 +77,21 @@ const AdminDashboard = () => {
     navigate('/allotment-dashboard');
   }
 
+  const handleSubject=()=>{
+    navigate('/manage-subject')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-6">
       <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between">
         <h1 className="text-4xl font-bold text-center text-indigo-800 mb-8">
           🧑‍💼 Admin Dashboard - Faculty Manager
         </h1>
+
+        <img src="./subjmag.jpg" className="h-12 w-12 rounded-full border-4 border-indigo-700 cursor-pointer hover:transition-colors hover:border-indigo-800" alt="" onClick={handleSubject}/>
+        </div>
+       
 
         {/* Add Faculty Form */}
         <div className="bg-white shadow-lg rounded-lg p-6 mb-10">
