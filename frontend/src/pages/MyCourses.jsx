@@ -4,12 +4,13 @@ import SubjectCard from "../components/SubjectCard";
 import { StudentDataContext } from "../context/StudentContext";
 import axios from "axios";
 
+
 const MyCourses = () => {
   const { student } = useContext(StudentDataContext);
   const [courses, setCourses] = useState([]);
-
+  
   useEffect(() => {
-    const fetch = async () => {
+    const fetch = async()=> {
       if (!student?.department || !student?.semester || !student?.section)
         return;
 

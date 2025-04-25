@@ -24,7 +24,7 @@ const LMSLogin = () => {
       if (res.status == 201) {
         localStorage.setItem("token",res.data.token);
         setStudent(res.data.student);
-        navigate("/lms-dashboard");
+        navigate("/my-courses");
       }
     } catch (err) {
       console.log(err.message);

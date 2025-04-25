@@ -1,70 +1,51 @@
 import { React, useState } from "react";
 import LMSNavbar from "../components/LMSNavbar";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+
 const CoursePage = () => {
   const [activeUnit, setActiveUnit] = useState(null);
+  const location = useLocation();
+  const allotments = location.state?.allotments || [];
 
-  const units = [
-    {
-      id: 1,
-      title: "Unit 1",
-      content: {
-        title: "Introduction to Data Communication",
-        lectureMaterials: [
-          { name: "Introduction to Network Models", link: "#" },
-          { name: "OSI Model Explained", link: "#" },
-          { name: "TCP/IP Protocol Suite - Video Lecture", link: "#" },
-        ],
-        assignments: [
-          {
-            name: "Assignment 1: Network Analysis",
-            due: "Oct 15",
-            link: "#",
-            important: true,
-          },
-          { name: "Supplementary Reading Materials", link: "#" },
-          { name: "Useful Web Resources", link: "#" },
-        ],
-      },
-    },
-    {
-      id: 2,
-      title: "Unit 2",
-      content: { title: "Content for Unit 2 goes here." },
-    },
-    {
-      id: 3,
-      title: "Unit 3",
-      content: { title: "Content for Unit 3 goes here." },
-    },
-    {
-      id: 4,
-      title: "Unit 4",
-      content: { title: "Content for Unit 4 goes here." },
-    },
-  ];
+  const rawUnits = allotments.flatMap((a) =>
+    a.materials.map((material) => ({
+      unit: material.unit,
+      files: material.file,
+    }))
+  );
+
+  // Create an array for 4 units even if some have no data
+  const units = [1, 2, 3, 4].map((unitNum) => {
+    const matched = rawUnits.find((u) => u.unit === unitNum);
+    return {
+      unit: unitNum,
+      files: matched ? matched.files : [],
+    };
+  });
+
   return (
     <div className="relative w-screen h-screen">
       <LMSNavbar />
       <div className="absolute top-20 w-screen min-h-screen">
         <h1 className="p-5 text-2xl font-bold text-center">DCCN: BIT-304</h1>
         <div className="bg-[#135106]/40 sm:mx-7 sm:p-5 rounded-xl min-h-screen">
-          <div className=" p-4 mx-auto w-full ">
+          <div className="p-4 mx-auto w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 w-full bg-white rounded-md overflow-hidden">
               {units.map((unit) => (
                 <button
-                  key={unit.id}
-                  className={`flex items-center justify-between px-4 py-3  text-black font-semibold transition duration-300 w-full border-b sm:border-r border-[#135106]/40 ${
-                    activeUnit === unit.id
+                  key={unit.unit}
+                  className={`flex items-center justify-between px-4 py-3 text-black font-semibold transition duration-300 w-full border-b sm:border-r border-[#135106]/40 ${
+                    activeUnit === unit.unit
                       ? "bg-[#135106]/95 text-white"
                       : "hover:bg-[#135106] hover:text-white"
                   }`}
                   onClick={() =>
-                    setActiveUnit(activeUnit === unit.id ? null : unit.id)
+                    setActiveUnit(activeUnit === unit.unit ? null : unit.unit)
                   }
                 >
-                  {unit.title}
-                  {activeUnit === unit.id ? (
+                  Unit {unit.unit}
+                  {activeUnit === unit.unit ? (
                     <ChevronUp size={20} />
                   ) : (
                     <ChevronDown size={20} />
@@ -76,51 +57,35 @@ const CoursePage = () => {
 
           {activeUnit !== null && (
             <div className="mt-5 bg-white p-5 rounded-lg shadow-lg min-h-60 mx-auto w-[96%] sm:w-[98%]">
-              <h2 className="text-2xl font-bold mb-3">{units[activeUnit - 1].content.title}</h2>
-              {units[activeUnit - 1].content.lectureMaterials && (
-                <div>
-                  <h3 className="text-green-700 pb-2 font-semibold">
-                    Lecture Materials
-                  </h3>
-                  <ul className="list-disc pl-5 text-blue-700">
-                    {units[activeUnit - 1].content.lectureMaterials.map(
-                      (item, index) => (
+              <h2 className="text-2xl font-bold mb-3">
+                Materials for Unit {activeUnit}
+              </h2>
+              <div>
+                <h3 className="text-green-700 pb-2 font-semibold">
+                  Lecture Materials
+                </h3>
+                <ul className="list-disc pl-5 text-blue-700">
+                  {units.find((u) => u.unit === activeUnit)?.files.length >
+                  0 ? (
+                    units
+                      .find((u) => u.unit === activeUnit)
+                      .files.map((file, index) => (
                         <li key={index} className="pb-2">
-                          <a href={item.link} className="hover:underline">
-                            {item.name}
-                          </a>
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </div>
-              )}
-              {units[activeUnit - 1].content.assignments && (
-                <div className="mt-4">
-                  <h3 className="text-green-700 pb-2 font-semibold">
-                    Assignments & Resources
-                  </h3>
-                  <ul className="list-disc pl-5">
-                    {units[activeUnit - 1].content.assignments.map(
-                      (item, index) => (
-                        <li key={index} className="pb-2">
-                          <a
-                            href={item.link}
-                            className="hover:underline text-blue-700"
+                          <Link
+                            to={`/view-pdf/${file.fileUrl.split("/").pop()}`}
+                            className="hover:underline"
                           >
-                            {item.name}
-                          </a>
-                          {item.important && (
-                            <span className="text-red-500 ml-2">
-                              Due: {item.due}
-                            </span>
-                          )}
+                            {file.fileName}
+                          </Link>
                         </li>
-                      )
-                    )}
-                  </ul>
-                </div>
-              )}
+                      ))
+                  ) : (
+                    <li className="text-gray-500 italic">
+                      No materials uploaded yet.
+                    </li>
+                  )}
+                </ul>
+              </div>
             </div>
           )}
 
@@ -131,8 +96,11 @@ const CoursePage = () => {
             <div className="grid md:grid-cols-2 gap-6 mt-4">
               <div>
                 <h3 className="font-bold text-green-700">Instructor</h3>
-                <p className="text-gray-800">Dr. Jane Smith</p>
-                <p className="text-gray-600">jsmith@university.edu</p>
+                <p className="text-gray-800">
+                  {allotments[0]?.faculty?.fullName?.firstName}{" "}
+                  {allotments[0]?.faculty?.fullName?.lastName}
+                </p>
+                <p className="text-gray-600">{allotments[0]?.faculty?.email}</p>
               </div>
               <div>
                 <h3 className="font-bold text-green-700">Course Details</h3>
