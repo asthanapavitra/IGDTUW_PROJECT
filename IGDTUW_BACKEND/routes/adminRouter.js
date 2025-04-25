@@ -45,8 +45,7 @@ router.post(
   ],
   createSemester
 );
-router.get("/get-subjects/:department/:semNo",getSubjects
-);
+
 router.post("/add-subject-to-semester/:semNo/:department",isLoggedInAdmin,addSubjectToSemester);
 router.post("/delete-subject-to-semester/:semNo/:department",isLoggedInAdmin,deleteSubjectFromSemester);
 

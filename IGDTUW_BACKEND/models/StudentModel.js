@@ -37,7 +37,10 @@ const StudentSchema =  mongoose.Schema({
     required: true,
     enum:["1","2","3","4","5","6","7","8"]
   },
-  
+  section:{
+    type:String,
+    required:true,
+  },
   securityQuestion: {
     question: {
       type: String,

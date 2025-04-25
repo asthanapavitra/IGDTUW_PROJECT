@@ -25,14 +25,19 @@ router.post(
     body("semester")
       .isIn(["1", "2", "3", "4", "5", "6", "7", "8"])
       .withMessage("Invalid Semester"),
-    body('securityQuestion.question').isIn([
-      "What is the name of your best childhood friend?",
-      "What is your favorite color?",
-      "What was the name of your first school?",
-      "What is your favorite food?",
-      "What is your dream job?"
-    ]).withMessage("Invalid Question"),
-    body('securityQuestion.answer').isLength({min:1}).withMessage("Must not be empty")
+    body("section").notEmpty().withMessage("Section should not be empty"),
+    body("securityQuestion.question")
+      .isIn([
+        "What is the name of your best childhood friend?",
+        "What is your favorite color?",
+        "What was the name of your first school?",
+        "What is your favorite food?",
+        "What is your dream job?",
+      ])
+      .withMessage("Invalid Question"),
+    body("securityQuestion.answer")
+      .isLength({ min: 1 })
+      .withMessage("Must not be empty"),
   ],
   userController.registerUser
 );
@@ -56,4 +61,10 @@ router.get("/logout", isLoggedIn, (req, res) => {
   res.clearCookie("studentToken");
   res.status(200).json({ msg: "Logged out successfully" });
 });
+
+router.get(
+  "/get-courses/:department/:semNo/:section",
+  isLoggedIn,
+  userController.getCourses
+);
 module.exports = router;

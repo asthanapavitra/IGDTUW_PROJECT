@@ -1,51 +1,71 @@
 import React, { useState, useEffect } from "react";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import axios from "axios";
 
 const SubjectManagement = () => {
-  const dummySubjects = [
-    { _id: "sub1", name: "Data Structures", subject_code: "CS10101" },
-    { _id: "sub2", name: "Mathematics I", subject_code: "MA10102" },
-    { _id: "sub3", name: "Algorithms", subject_code: "CS10203" },
-    { _id: "sub4", name: "Circuits", subject_code: "EE10104" },
-  ];
-
-  const dummySemesters = [
-    { _id: "sem1", semNo: 1, subjects: ["sub1", "sub2"] },
-    { _id: "sem2", semNo: 2, subjects: ["sub3"] },
-    { _id: "sem3", semNo: 1, subjects: ["sub4"] },
-  ];
-
-  const dummyDepartments = [
-    { _id: "dept1", deptName: "Computer Science", semesters: ["sem1", "sem2"] },
-    { _id: "dept2", deptName: "Electrical Engineering", semesters: ["sem3"] },
-  ];
-
   const [departments, setDepartments] = useState([]);
-  const [semesters, setSemesters] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const [allSubjects, setAllSubjects] = useState([]);
+  const [semesters, setSemesters] = useState([
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+  ]);
   const [subjects, setSubjects] = useState([]);
   const [filteredSubjects, setFilteredSubjects] = useState([]);
-  const [selectedDept, setSelectedDept] = useState("");
-  const [selectedSem, setSelectedSem] = useState("");
+  const [selectedDept, setSelectedDept] = useState(null);
+  const [selectedSem, setSelectedSem] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [newSubject, setNewSubject] = useState({ name: "", subject_code: "" });
 
   useEffect(() => {
-    setDepartments(dummyDepartments);
+    const fetchDep = async () => {
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/subject/all-departments`
+      );
+      if (res.status == 200) {
+        setDepartments(res.data.departments);
+        // console.log(res.data);
+      }
+    };
+    fetchDep();
+
+    const fetchSubjects = async () => {
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/subject/all-subjects`
+      );
+      if (res.status == 200) {
+        setAllSubjects(res.data.subjects);
+        // console.log(res.data);
+      }
+    };
+    fetchSubjects();
   }, []);
 
   useEffect(() => {
-    if (selectedDept) {
-      const dept = dummyDepartments.find((d) => d._id === selectedDept);
-      setSemesters(dummySemesters.filter((sem) => dept?.semesters.includes(sem._id)));
-    }
-  }, [selectedDept]);
+    const fetch = async () => {
+      const res = await axios.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/subject/get-subjects/${selectedDept}/${selectedSem}`
+      );
 
-  useEffect(() => {
-    if (selectedSem) {
-      const sem = dummySemesters.find((s) => s._id === selectedSem);
-      const subs = dummySubjects.filter((s) => sem?.subjects.includes(s._id));
-      setSubjects(subs);
-      setFilteredSubjects(subs);
+      if (res.status == 200) {
+        setSubjects(res.data.subjects);
+        setFilteredSubjects(res.data.subjects);
+
+        // console.log(res.data.subjects);
+      }
+    };
+    // console.log(selectedDept, selectedSem);
+    if (selectedDept != null && selectedSem != null) {
+      fetch();
     }
   }, [selectedSem]);
 
@@ -59,26 +79,40 @@ const SubjectManagement = () => {
     );
   };
 
-  const handleAddSubject = () => {
-    const newSub = {
-      _id: `sub${Date.now()}`,
-      name: newSubject.name,
-      subject_code: newSubject.subject_code,
-    };
-    const updated = [...subjects, newSub];
-    setSubjects(updated);
-    setFilteredSubjects(updated);
+  const handleAddSubject = async () => {
+    const res = await axios.post(
+      `${
+        import.meta.env.VITE_BASE_URL
+      }/admin/add-subject-to-semester/${selectedSem}/${selectedDept}`,
+      { subject_code: newSubject.subject_code },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    if (res.status == 200) {
+      // console.log(res.data.subjects);
+      setSubjects(res.data.subjects);
+      setFilteredSubjects(res.data.subjects);
+    }
+
     setNewSubject({ name: "", subject_code: "" });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (subject_code, id) => {
+    await axios.post(
+      `${
+        import.meta.env.VITE_BASE_URL
+      }/admin/delete-subject-to-semester/${selectedSem}/${selectedDept}`,
+      { subject_code },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
     const updated = subjects.filter((s) => s._id !== id);
-    setSubjects(updated);
-    setFilteredSubjects(updated);
-  };
-
-  const handleEdit = (id, updatedSubj) => {
-    const updated = subjects.map((s) => (s._id === id ? { ...s, ...updatedSubj } : s));
     setSubjects(updated);
     setFilteredSubjects(updated);
   };
@@ -97,7 +131,7 @@ const SubjectManagement = () => {
           >
             <option value="">Select Department</option>
             {departments.map((dept) => (
-              <option key={dept._id} value={dept._id}>
+              <option key={dept._id} value={dept.deptName}>
                 {dept.deptName}
               </option>
             ))}
@@ -108,29 +142,66 @@ const SubjectManagement = () => {
             className="p-3 border rounded-lg w-full md:w-1/2 bg-white shadow-sm"
           >
             <option value="">Select Semester</option>
-            {semesters.map((sem) => (
-              <option key={sem._id} value={sem._id}>
-                Semester {sem.semNo}
+            {semesters.map((sem, idx) => (
+              <option key={idx} value={sem}>
+                {sem}
               </option>
             ))}
           </select>
         </div>
 
         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold text-indigo-700 mb-4">Add New Subject</h2>
-          <div className="flex flex-col md:flex-row items-center gap-4">
-            <input
-              placeholder="Subject Name"
-              value={newSubject.name}
-              onChange={(e) => setNewSubject({ ...newSubject, name: e.target.value })}
-              className="p-3 border rounded-lg w-full md:w-1/3 shadow-sm"
-            />
+          <h2 className="text-xl font-semibold text-indigo-700 mb-4">
+            Add New Subject
+          </h2>
+
+          <div className="flex flex-col md:flex-row items-start gap-4 relative">
+            <div className="w-full md:w-1/3 relative">
+              <input
+                type="text"
+                placeholder="Select Subject"
+                value={newSubject.name}
+                onChange={(e) => {
+                  setNewSubject({ name: e.target.value, subject_code: "" });
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                className="p-3 border rounded-lg w-full shadow-sm"
+              />
+              {showSuggestions && (
+                <div className="absolute z-10 w-full bg-white border rounded-md mt-1 max-h-60 overflow-y-auto shadow-md">
+                  {allSubjects
+                    .filter((subject) =>
+                      subject.name
+                        .toLowerCase()
+                        .includes(newSubject.name.toLowerCase())
+                    )
+                    .slice(0, 10)
+                    .map((subject) => (
+                      <div
+                        key={subject.subject_code}
+                        onClick={() =>
+                          setNewSubject({
+                            name: subject.name,
+                            subject_code: subject.subject_code,
+                          })
+                        }
+                        className="px-4 py-2 hover:bg-indigo-100 cursor-pointer"
+                      >
+                        {subject.name}
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
             <input
               placeholder="Subject Code"
               value={newSubject.subject_code}
-              onChange={(e) => setNewSubject({ ...newSubject, subject_code: e.target.value })}
-              className="p-3 border rounded-lg w-full md:w-1/3 shadow-sm"
+              readOnly
+              className="p-3 border rounded-lg w-full md:w-1/3 shadow-sm bg-gray-100"
             />
+
             <button
               onClick={handleAddSubject}
               className="flex items-center gap-2 px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
@@ -141,7 +212,9 @@ const SubjectManagement = () => {
         </div>
 
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-indigo-700">Subject List</h3>
+          <h3 className="text-xl font-semibold text-indigo-700">
+            Subject List
+          </h3>
           <input
             type="text"
             placeholder="Search subjects..."
@@ -155,26 +228,13 @@ const SubjectManagement = () => {
           {filteredSubjects.map((subj) => (
             <div key={subj._id} className="rounded-2xl shadow-md p-4 bg-white">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold text-indigo-800">{subj.name}</h3>
+                <h3 className="text-lg font-semibold text-indigo-800">
+                  {subj.name}
+                </h3>
                 <div className="flex gap-2">
                   <button
-                    className="text-gray-600 hover:text-indigo-600"
-                    onClick={() => {
-                      const updatedName = prompt("Edit subject name:", subj.name);
-                      const updatedCode = prompt("Edit subject code:", subj.subject_code);
-                      if (updatedName && updatedCode) {
-                        handleEdit(subj._id, {
-                          name: updatedName,
-                          subject_code: updatedCode,
-                        });
-                      }
-                    }}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
                     className="text-red-600 hover:text-red-800"
-                    onClick={() => handleDelete(subj._id)}
+                    onClick={() => handleDelete(subj.subject_code, subj._id)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

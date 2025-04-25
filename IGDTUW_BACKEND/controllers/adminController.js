@@ -160,31 +160,7 @@ const createSemester = async (req, res) => {
     res.status(500).json({ message: "Error creating semester", error });
   }
 };
-const getSubjects = async (req, res) => {
-  try {
-    const { department, semNo } = req.params;
 
-    // Find the semester document
-    const semester = await Semester.findOne({
-      departmentName: department,
-      semNo: Number(semNo),
-    });
-
-    if (!semester) {
-      return res.status(404).json({ message: "Semester not found" });
-    }
-
-    // Fetch subject details using subject codes
-    const subjects = await Subject.find({
-      subject_code: { $in: semester.subjects },
-    });
-
-    return res.status(200).json({ subjects });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server Error" });
-  }
-};
 const addSubjectToSemester = async (req, res) => {
   try {
     const { semNo, department } = req.params;
@@ -207,18 +183,24 @@ const addSubjectToSemester = async (req, res) => {
         .json({ message: "Subject already exists in this semester" });
     }
     semester.subjects.push(subject_code);
+
     await semester.save();
-    res
-      .status(200)
-      .json({ message: "Subject added to semester successfully", semester });
+    
+    const subjects = await Subject.find({
+      subject_code: { $in: semester.subjects },
+    });
+    res.status(200).json({
+      message: "Subject added to semester successfully",
+      subjects,
+    });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Error adding subject to semester", error });
   }
 };
-const deleteSubjectFromSemester=async(req,res)=>{
-  try{
+const deleteSubjectFromSemester = async (req, res) => {
+  try {
     const { semNo, department } = req.params;
     const { subject_code } = req.body;
     const semester = await Semester.findOne({
@@ -238,18 +220,21 @@ const deleteSubjectFromSemester=async(req,res)=>{
         .status(400)
         .json({ message: "Subject does not exist in this semester" });
     }
-    semester.subjects=semester.subjects.filter((subject)=>subject!==subject_code)
+    semester.subjects = semester.subjects.filter(
+      (subject) => subject !== subject_code
+    );
     await semester.save();
-    res
-      .status(200)
-      .json({ message: "Subject deleted from semester successfully", semester });
+    res.status(200).json({
+      message: "Subject deleted from semester successfully",
+      semester,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error deleting subject from semester ,internal error",
+      error,
+    });
   }
-  catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error deleting subject from semester ,internal error", error });
-  }
-}
+};
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -258,7 +243,6 @@ module.exports = {
   allotDepartment,
   deleteAllotment,
   createSemester,
-  getSubjects,
   addSubjectToSemester,
-  deleteSubjectFromSemester
+  deleteSubjectFromSemester,
 };
