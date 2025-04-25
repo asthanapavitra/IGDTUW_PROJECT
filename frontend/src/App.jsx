@@ -48,6 +48,14 @@ const App = () => {
           }
         />
         <Route
+          path="/my-courses"
+          element={
+            <LMSProtectedWrapper>
+              <MyCourses />
+            </LMSProtectedWrapper>
+          }
+        />
+        <Route
           path="/admin-dashboard"
           element={
             <AdminProtectedWrapper>
