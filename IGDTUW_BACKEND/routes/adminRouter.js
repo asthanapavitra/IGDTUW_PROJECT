@@ -1,6 +1,6 @@
 const express = require("express");
 const { body } = require("express-validator");
-const { registerAdmin, loginAdmin, logoutAdmin, getAdminDashboard,allotDepartment,deleteAllotment } = require("../controllers/adminController");
+const { registerAdmin, loginAdmin, logoutAdmin, getAdminDashboard,allotDepartment,deleteAllotment ,createSemester,addSubjectToSemester,deleteSubjectFromSemester,getSubjects} = require("../controllers/adminController");
 const { isLoggedInAdmin } = require("../middlewares/isLoggedInAdmin");
 
 const router = express.Router();
@@ -34,5 +34,20 @@ router.get("/dashboard", isLoggedInAdmin, getAdminDashboard);
 
 // Admin Logout Route
 router.get("/logout", isLoggedInAdmin, logoutAdmin);
+router.post(
+  "/create-semester",
+  isLoggedInAdmin,
+  [
+    body("semNo").isInt({ min: 1 }).withMessage("Semester number must be a positive integer"),
+    body("department")
+      .isIn(["CSE", "IT", "ECE", "MAE", "CSE-AI", "AI-ML", "ECE-AI"])
+      .withMessage("Invalid Department"),
+  ],
+  createSemester
+);
+router.get("/get-subjects/:department/:semNo",getSubjects
+);
+router.post("/add-subject-to-semester/:semNo/:department",isLoggedInAdmin,addSubjectToSemester);
+router.post("/delete-subject-to-semester/:semNo/:department",isLoggedInAdmin,deleteSubjectFromSemester);
 
 module.exports = router;

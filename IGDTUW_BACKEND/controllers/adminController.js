@@ -2,8 +2,9 @@ const Admin = require("../models/AdminModel");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const Faculty = require("../models/FacultyModel");
-
-const Allotment=require('../models/AllotmentModel')
+const Subject = require("../models/Subject");
+const Allotment = require("../models/AllotmentModel");
+const Semester = require("../models/SemesterModel");
 // Register Admin (Only One Admin Allowed)
 const registerAdmin = async (req, res) => {
   try {
@@ -110,22 +111,26 @@ const allotDepartment = async (req, res) => {
   if (allotmentExists) {
     return res.status(400).json({ message: "Allotment already exists" });
   }
-  const newAllotment=await Allotment.create(allotment);
+  const newAllotment = await Allotment.create(allotment);
 
   faculty.allotedDepartments.push(newAllotment._id);
   await faculty.save();
-  const populatedFaculty = await Faculty.findById(faculty._id).populate("allotedDepartments");
-  return res.status(200).json({ message: "Department allotted successfully",allotments:populatedFaculty.allotedDepartments });
+  const populatedFaculty = await Faculty.findById(faculty._id).populate(
+    "allotedDepartments"
+  );
+  return res.status(200).json({
+    message: "Department allotted successfully",
+    allotments: populatedFaculty.allotedDepartments,
+  });
 };
 
-const deleteAllotment = async(req,res)=>{
+const deleteAllotment = async (req, res) => {
   const facultyId = req.params.facultyId;
-  const allotmentId=req.params.allotmentId;
+  const allotmentId = req.params.allotmentId;
   const faculty = await Faculty.findOne({ _id: facultyId });
   if (!faculty) {
     return res.status(400).json({ message: "Faculty not found" });
   }
-  
 
   faculty.allotedDepartments = faculty.allotedDepartments.filter(
     (id) => id.toString() !== allotmentId
@@ -133,13 +138,127 @@ const deleteAllotment = async(req,res)=>{
   await Allotment.findByIdAndDelete(allotmentId);
   await faculty.save();
   return res.status(200).json({ message: "Department allotted successfully" });
-}
+};
 
+const createSemester = async (req, res) => {
+  try {
+    const { semNo, departmentName, subjects } = req.body;
+
+    const newSemester = new Semester({
+      semNo,
+      departmentName,
+      subjects,
+    });
+
+    const savedSemester = await newSemester.save();
+
+    res.status(201).json({
+      message: "Semester created successfully",
+      semester: savedSemester,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating semester", error });
+  }
+};
+const getSubjects = async (req, res) => {
+  try {
+    const { department, semNo } = req.params;
+
+    // Find the semester document
+    const semester = await Semester.findOne({
+      departmentName: department,
+      semNo: Number(semNo),
+    });
+
+    if (!semester) {
+      return res.status(404).json({ message: "Semester not found" });
+    }
+
+    // Fetch subject details using subject codes
+    const subjects = await Subject.find({
+      subject_code: { $in: semester.subjects },
+    });
+
+    return res.status(200).json({ subjects });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+const addSubjectToSemester = async (req, res) => {
+  try {
+    const { semNo, department } = req.params;
+    const { subject_code } = req.body;
+    const semester = await Semester.findOne({
+      semNo: Number(semNo),
+      departmentName: department,
+    });
+    if (!semester) {
+      return res.status(404).json({ message: "Semester not found" });
+    }
+    const subject = await Subject.findOne({ subject_code });
+    if (!subject) {
+      return res.status(404).json({ message: "Subject not found" });
+    }
+    const subjectExists = semester.subjects.includes(subject_code);
+    if (subjectExists) {
+      return res
+        .status(400)
+        .json({ message: "Subject already exists in this semester" });
+    }
+    semester.subjects.push(subject_code);
+    await semester.save();
+    res
+      .status(200)
+      .json({ message: "Subject added to semester successfully", semester });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error adding subject to semester", error });
+  }
+};
+const deleteSubjectFromSemester=async(req,res)=>{
+  try{
+    const { semNo, department } = req.params;
+    const { subject_code } = req.body;
+    const semester = await Semester.findOne({
+      semNo: Number(semNo),
+      departmentName: department,
+    });
+    if (!semester) {
+      return res.status(404).json({ message: "Semester not found" });
+    }
+    const subject = await Subject.findOne({ subject_code });
+    if (!subject) {
+      return res.status(404).json({ message: "Subject not found" });
+    }
+    const subjectExists = semester.subjects.includes(subject_code);
+    if (!subjectExists) {
+      return res
+        .status(400)
+        .json({ message: "Subject does not exist in this semester" });
+    }
+    semester.subjects=semester.subjects.filter((subject)=>subject!==subject_code)
+    await semester.save();
+    res
+      .status(200)
+      .json({ message: "Subject deleted from semester successfully", semester });
+  }
+  catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error deleting subject from semester ,internal error", error });
+  }
+}
 module.exports = {
   registerAdmin,
   loginAdmin,
   getAdminDashboard,
   logoutAdmin,
   allotDepartment,
-  deleteAllotment
+  deleteAllotment,
+  createSemester,
+  getSubjects,
+  addSubjectToSemester,
+  deleteSubjectFromSemester
 };
