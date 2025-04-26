@@ -8,6 +8,7 @@ const StudentRegister = () => {
   const [email, setEmail] = useState("");
   const [department, setDepartment] = useState("");
   const [semester, setSemester] = useState("");
+  const [section, setSection] = useState("");
   const [enrollmentNo, setEnrollmentNo] = useState("");
   const [password, setPassword] = useState("");
   const [question, setQuestion] = useState("");
@@ -24,6 +25,7 @@ const StudentRegister = () => {
       fullName: { firstName, lastName },
       department,
       semester,
+      section,
       securityQuestion: { question, answer },
     };
 
@@ -103,13 +105,13 @@ const StudentRegister = () => {
               />
             </div>
 
-            <div className="flex justify-between w-full">
+            <div className="flex justify-between w-full gap-1">
               <select
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 className="bg-emerald-800/10 px-2 py-1 outline-0 border-2 rounded-md border-[#135106] text-sm placeholder:text-emerald-900/50 w-[49%]"
               >
-                <option value="">Select Department</option>{" "}
+                <option value="">Department</option>{" "}
                 <option value="CSE">CSE</option>
                 <option value="MAE">MAE</option>
                 <option value="IT">IT</option>
@@ -124,7 +126,7 @@ const StudentRegister = () => {
                 onChange={(e) => setSemester(e.target.value)} // ✅ Correct way
                 className="bg-emerald-800/10 px-2 py-1 outline-0 border-2 rounded-md border-[#135106] text-sm placeholder:text-emerald-900/50 w-[49%]"
               >
-                <option value="">Select Semester</option>{" "}
+                <option value="">Semester</option>{" "}
                 {/* ✅ Optional: Default option */}
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -134,6 +136,17 @@ const StudentRegister = () => {
                 <option value="6">6</option>
                 <option value="7">7</option>
                 <option value="8">8</option>
+              </select>
+              <select
+                value={semester}
+                onChange={(e) => setSection(e.target.value)} // ✅ Correct way
+                className="bg-emerald-800/10 px-2 py-1 outline-0 border-2 rounded-md border-[#135106] text-sm placeholder:text-emerald-900/50 w-[49%]"
+              >
+                <option value="">Section</option>{" "}
+                {/* ✅ Optional: Default option */}
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
               </select>
             </div>
 
