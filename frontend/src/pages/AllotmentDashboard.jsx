@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const AllotmentDashboard = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [faculty, setFaculty] = useState({
     fullName: { firstName: "", lastName: "" },
     email: "",
@@ -21,25 +21,31 @@ const AllotmentDashboard = () => {
   const facultyId = localStorage.getItem("facultyId");
 
   useEffect(() => {
-    if(!facultyId){
-    navigate('/admin-dashboard');
+    // console.log(facultyId);
+    if (!facultyId) {
+      navigate("/admin-dashboard");
+      return;
     }
     async function fetchData() {
-      const res = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/faculty/get-faculty/${facultyId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      setFaculty(res.data.faculty);
-      //   console.log(res.data.faculty);
-      setAllotments(res.data.faculty.allotedDepartments || []);
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/faculty/get-faculty/${facultyId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setFaculty(res.data.faculty);
+        //   console.log(res.data.faculty);
+        setAllotments(res.data.faculty.allotedDepartments || []);
+      } catch (err) {
+        console.log(err);
+      }
     }
 
-    if (facultyId) fetchData();
-  }, [facultyId]);
+    fetchData();
+  }, [facultyId, navigate]);
 
   const handleUpdateInfo = async (e) => {
     e.preventDefault();
@@ -74,7 +80,8 @@ const AllotmentDashboard = () => {
       );
       if (response.status === 200) {
         // console.log(response.data.allotments);
-        setAllotments(response.data.allotments);}
+        setAllotments(response.data.allotments);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -87,7 +94,7 @@ const AllotmentDashboard = () => {
         `${
           import.meta.env.VITE_BASE_URL
         }/admin/delete-allotment/${facultyId}/${allotmentId}`,
-     
+
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -104,9 +111,11 @@ const AllotmentDashboard = () => {
     }
   };
   const deleteFaculty = async () => {
-    const confirmed = window.confirm("Are you sure you want to delete this faculty?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this faculty?"
+    );
     if (!confirmed) return;
-  
+
     try {
       const response = await axios.delete(
         `${import.meta.env.VITE_BASE_URL}/faculty/delete-faculty/${facultyId}`,
@@ -116,18 +125,18 @@ const AllotmentDashboard = () => {
           },
         }
       );
-  
+
       if (response.status === 200) {
         localStorage.removeItem("facultyId");
         alert("Faculty deleted successfully.");
-        navigate('/admin-dashboard');
+        navigate("/admin-dashboard");
       }
     } catch (err) {
       console.error("Error deleting faculty:", err);
       alert("Something went wrong while deleting the faculty.");
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-10 px-4 md:px-10">
       <div className="max-w-6xl mx-auto space-y-12">
@@ -172,7 +181,7 @@ const AllotmentDashboard = () => {
                   fullName: { ...faculty.fullName, lastName: e.target.value },
                 })
               }
-              className="p-3 border border-gray-300 rounded-md"
+              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
             <input
               type="email"
@@ -181,7 +190,7 @@ const AllotmentDashboard = () => {
               onChange={(e) =>
                 setFaculty({ ...faculty, email: e.target.value })
               }
-              className="p-3 border border-gray-300 rounded-md"
+              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
             <input
               type="text"
@@ -190,7 +199,7 @@ const AllotmentDashboard = () => {
               onChange={(e) =>
                 setFaculty({ ...faculty, department: e.target.value })
               }
-              className="p-3 border border-gray-300 rounded-md"
+              className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
             <div className="md:col-span-2 flex gap-2">
               <button
@@ -200,13 +209,11 @@ const AllotmentDashboard = () => {
                 Update Info
               </button>
               <button
-
                 onClick={deleteFaculty}
                 className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition w-full md:w-auto"
               >
                 Delete Faculty
               </button>
-              
             </div>
           </form>
         </div>
@@ -287,13 +294,12 @@ const AllotmentDashboard = () => {
               </thead>
               <tbody>
                 {allotments.map((a, i) => (
-                  
                   <tr key={i} className="hover:bg-gray-50 border-b transition">
                     <td className="p-3">{a.department}</td>
                     <td className="p-3">{a.subject}</td>
                     <td className="p-3">{a.section}</td>
                     <td className="p-3">{a.semester}</td>
-                    
+
                     <td className="p-3">
                       <button
                         onClick={() => handleDeleteAllotment(a._id, i)}
@@ -301,11 +307,10 @@ const AllotmentDashboard = () => {
                       >
                         Delete
                       </button>
-                     
+
                       {/* Edit button can be added here */}
                     </td>
                   </tr>
-               
                 ))}
               </tbody>
             </table>

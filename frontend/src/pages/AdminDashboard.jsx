@@ -89,7 +89,7 @@ const AdminDashboard = () => {
           🧑‍💼 Admin Dashboard - Faculty Manager
         </h1>
 
-        <img src="./subjmag.jpg" className="h-12 w-12 rounded-full border-4 border-indigo-700 cursor-pointer hover:transition-colors hover:border-indigo-800" alt="" onClick={handleSubject}/>
+        <img src="./subjmag.jpg" className="h-12 w-12 rounded-full border-4 border-indigo-700 cursor-pointer hover:transition-colors hover:border-indigo-800 mx-2" alt="" onClick={handleSubject}/>
         </div>
        
 
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
             <input
               type="text"
               placeholder="First Name"
-              className="input"
+              className="input outline-1 focus:outline-indigo-700 rounded px-2 py-1"
               value={formData.fullName.firstName}
               onChange={(e) =>
                 setFormData({
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
             <input
               type="text"
               placeholder="Last Name"
-              className="input"
+              className="input outline-1 focus:outline-indigo-700 rounded px-2 py-1"
               value={formData.fullName.lastName}
               onChange={(e) =>
                 setFormData({
@@ -136,7 +136,7 @@ const AdminDashboard = () => {
             <input
               type="email"
               placeholder="Email (e.g. user@igdtuw.ac.in)"
-              className="input"
+              className="input outline-1 focus:outline-indigo-700 rounded px-2 py-1"
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
@@ -146,7 +146,7 @@ const AdminDashboard = () => {
             <input
               type="text"
               placeholder="Faculty ID"
-              className="input"
+              className="input outline-1 focus:outline-indigo-700 rounded px-2 py-1"
               value={formData.facultyId}
               onChange={(e) =>
                 setFormData({ ...formData, facultyId: e.target.value })
@@ -158,7 +158,7 @@ const AdminDashboard = () => {
               onChange={(e) =>
                 setFormData({ ...formData, department: e.target.value })
               }
-              className=""
+              className="input outline-1 focus:outline-indigo-700 rounded px-2 py-1"
             >
               <option value="">Select Department</option>{" "}
               <option value="CSE">CSE</option>
@@ -173,7 +173,7 @@ const AdminDashboard = () => {
             <input
               type="password"
               placeholder="Password"
-              className="input"
+              className="input outline-1 focus:outline-indigo-700 rounded px-2 py-1"
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
