@@ -96,8 +96,36 @@ module.exports.getAllFaculty = async (req, res) => {
   }
 };
 
+// module.exports.getFaculty = async (req, res) => {
+//   try {
+//     const faculty = await Faculty.findById(req.params.id)
+//       .select("-password")
+//       .populate({
+//         path: "allotedDepartments",
+//         populate: {
+//           path: "materials",
+//           populate: {
+//             path: "file",
+//             model: "Book",
+//             match: { faculty: new mongoose.Types.ObjectId(req.faculty._id) }, // ✅ Filter by current faculty
+//           },
+//         },
+//       });
+//     // console.log(faculty);
+//     if (!faculty) {
+//       return res.status(404).json({ errors: { message: "Not found" } });
+//     }
+//     res.status(200).json({ faculty });
+//   } catch (err) {
+//     res.status(500).json({ erros: { message: err.message } });
+//   }
+// };
 module.exports.getFaculty = async (req, res) => {
   try {
+    const matchFilter = req.faculty?._id
+      ? { faculty: new mongoose.Types.ObjectId(req.faculty._id) }
+      : {}; // fallback if req.faculty is undefined
+
     const faculty = await Faculty.findById(req.params.id)
       .select("-password")
       .populate({
@@ -107,20 +135,21 @@ module.exports.getFaculty = async (req, res) => {
           populate: {
             path: "file",
             model: "Book",
-            match: { faculty: new mongoose.Types.ObjectId(req.faculty._id) }, // ✅ Filter by current faculty
+            match: matchFilter,
           },
         },
       });
-    // console.log(faculty);
+
     if (!faculty) {
       return res.status(404).json({ errors: { message: "Not found" } });
     }
+
     res.status(200).json({ faculty });
   } catch (err) {
-    res.status(500).json({ erros: { message: err.message } });
+    console.error("Error in getFaculty:", err); // Log the real error
+    res.status(500).json({ errors: { message: err.message } });
   }
 };
-
 module.exports.updateFaculty = async (req, res) => {
   try {
     const faculty = await Faculty.findByIdAndUpdate(req.params.id, req.body, {
@@ -292,7 +321,7 @@ module.exports.downloadFile = async (req, res) => {
 module.exports.deleteFile = async (req, res) => {
   try {
     const fileId = req.params.fileId;
-    console.log(req.params.allotmentId)
+    console.log(req.params.allotmentId);
     const facultyId = req.faculty?._id;
     const { ObjectId } = require("mongodb");
     const db = mongoose.connection.db;
@@ -302,7 +331,9 @@ module.exports.deleteFile = async (req, res) => {
     await bucket.delete(new ObjectId(fileId));
 
     // 2. Find and delete from Book model
-    const deletedBook = await Book.findOneAndDelete({ fileUrl: `/faculty/files/${fileId}` });
+    const deletedBook = await Book.findOneAndDelete({
+      fileUrl: `/faculty/files/${fileId}`,
+    });
 
     if (!deletedBook) {
       return res.status(404).json({ error: "Book not found" });
@@ -329,7 +360,9 @@ module.exports.deleteFile = async (req, res) => {
     }
 
     // 6. Return updated Allotment with populated materials and filtered files
-    const updatedAllotment = await Allotment.findById(req.params.allotmentId).populate({
+    const updatedAllotment = await Allotment.findById(
+      req.params.allotmentId
+    ).populate({
       path: "materials",
       populate: {
         path: "file",
@@ -340,12 +373,13 @@ module.exports.deleteFile = async (req, res) => {
 
     res.status(200).json({
       message: "File deleted and data updated successfully",
-      allotment:updatedAllotment,
+      allotment: updatedAllotment,
     });
-
   } catch (err) {
     console.error("Delete error:", err);
-    res.status(500).json({ error: "Failed to delete file", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Failed to delete file", details: err.message });
   }
 };
 
@@ -367,4 +401,3 @@ module.exports.getMaterials = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
