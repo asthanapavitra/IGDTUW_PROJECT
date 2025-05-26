@@ -6,43 +6,60 @@ import { useParams } from "react-router-dom";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PdfViewer = () => {
-  const { fileId } = useParams(); // 👈 extract fileId from URL
+  const { fileId } = useParams();
   const [numPages, setNumPages] = useState(0);
   const canvasContainerRef = useRef();
-  const pdfUrl = `${import.meta.env.VITE_BASE_URL}/faculty/get-file/${fileId}`; // 🔗 build full URL
+  const pdfUrl = `${import.meta.env.VITE_BASE_URL}/faculty/get-file/${fileId}`;
 
   useEffect(() => {
-    const loadingTask = pdfjsLib.getDocument(pdfUrl);
-    loadingTask.promise.then((pdf) => {
-      setNumPages(pdf.numPages);
+    const renderPDF = async () => {
       const container = canvasContainerRef.current;
-      container.innerHTML = ""; // clear existing canvases
+      if (!container) return;
+
+      container.innerHTML = ""; // Clear old canvases
+
+      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      const pdf = await loadingTask.promise;
+      setNumPages(pdf.numPages);
+
+      const containerWidth = container.clientWidth;
+
       for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-        pdf.getPage(pageNumber).then((page) => {
-          const viewport = page.getViewport({ scale: 1.5 });
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
+        const page = await pdf.getPage(pageNumber);
 
-          container.appendChild(canvas);
+        const unscaledViewport = page.getViewport({ scale: 1 });
+        const scale = containerWidth / unscaledViewport.width;
 
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport,
-          };
-          page.render(renderContext);
-        });
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        container.appendChild(canvas);
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport,
+        };
+        page.render(renderContext);
       }
-    });
+    };
+
+    renderPDF();
+    window.addEventListener("resize", renderPDF); // re-render on resize
+
+    return () => {
+      window.removeEventListener("resize", renderPDF);
+    };
   }, [pdfUrl]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4">
-      <h2 className="text-xl font-semibold ">📄 PDF Viewer</h2>
-      <div ref={canvasContainerRef}></div>
+    <div className="min-h-screen w-full max-w-[1000px] mx-auto p-4">
+      <div ref={canvasContainerRef} className="w-full"></div>
     </div>
   );
 };
 
 export default PdfViewer;
+
