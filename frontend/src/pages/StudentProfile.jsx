@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { Pencil, Save } from "lucide-react";
 import LMSNavbar from "../components/LMSNavbar";
+import { useContext } from "react";
+import { StudentDataContext } from "../context/StudentContext";
 
 export default function Profile() {
+  const {student}=useContext(StudentDataContext)
   const dummyStudent = {
-    fullName: "John Doe",
-    email: "johndoe@igdtuw.ac.in",
-    department: "CSE",
-    enrollmentNo: "123456789012",
-    semester: "5"
+    fullName: student?.fullName.firstName +" "+ student?.fullName.lastName,
+    email:student?.email,
+    department: student?.department,
+    enrollmentNo: student?.enrollmentNo,
+    semester: student?.semester,
+    section:student?.section,
+
   };
 
   const [isEditing, setIsEditing] = useState(false);
@@ -44,13 +49,13 @@ export default function Profile() {
           ))}
         </div>
 
-        <button
+        {/* <button
           onClick={() => setIsEditing(!isEditing)}
           className="mt-6 flex items-center gap-2 bg-[#135106]/90 text-white px-4 py-2 rounded-lg hover:bg-[#135106] focus:ring focus:ring-indigo-300"
         >
           {isEditing ? <Save size={18} /> : <Pencil size={18} />}
           {isEditing ? "Save" : "Edit Profile"}
-        </button>
+        </button> */}
       </div>
     </div>
     </div>
