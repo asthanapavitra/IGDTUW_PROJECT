@@ -8,7 +8,7 @@ const CoursePage = () => {
   const location = useLocation();
   const allotments = location.state?.allotments || {};
   let rawUnits = [];
-
+  console.log(allotments?.materials)
   if (allotments?.materials?.length > 0) {
     rawUnits = allotments.materials.map((a) => ({
       unit: a.unit,
@@ -73,14 +73,12 @@ const CoursePage = () => {
                       .find((u) => u.unit === activeUnit)
                       .files.map((file, index) => (
                         <li key={index} className="pb-2">
-                          <a
-                            href={`/view-pdf/${file.fileUrl.split("/").pop()}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <Link
+                            to={`/view-pdf/${file.fileUrl.split("/").pop()}`}
                             className="hover:underline"
                           >
                             {file.fileName}
-                          </a>
+                          </Link>
                         </li>
                       ))
                   ) : (
