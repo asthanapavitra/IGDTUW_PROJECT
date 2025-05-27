@@ -6,10 +6,10 @@ import { Link, useLocation } from "react-router-dom";
 const CoursePage = () => {
   const [activeUnit, setActiveUnit] = useState(null);
   const location = useLocation();
-  const allotments = location.state?.allotments || [];
+  const allotments = location.state?.allotments || {};
   let rawUnits = [];
 
-  if (allotments && allotments.materials.length > 0) {
+  if (allotments?.materials?.length > 0) {
     rawUnits = allotments.materials.map((a) => ({
       unit: a.unit,
       files: a.file,
@@ -73,12 +73,14 @@ const CoursePage = () => {
                       .find((u) => u.unit === activeUnit)
                       .files.map((file, index) => (
                         <li key={index} className="pb-2">
-                          <Link
-                            to={`/view-pdf/${file.fileUrl.split("/").pop()}`}
+                          <a
+                            href={`/view-pdf/${file.fileUrl.split("/").pop()}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="hover:underline"
                           >
                             {file.fileName}
-                          </Link>
+                          </a>
                         </li>
                       ))
                   ) : (
@@ -102,7 +104,7 @@ const CoursePage = () => {
                   {allotments?.faculty?.fullName?.firstName}{" "}
                   {allotments?.faculty?.fullName?.lastName}
                 </p>
-                <p className="text-gray-600">{allotments[0]?.faculty?.email}</p>
+                <p className="text-gray-600">{allotments?.faculty?.email}</p>
               </div>
               <div>
                 <h3 className="font-bold text-green-700">Course Details</h3>
