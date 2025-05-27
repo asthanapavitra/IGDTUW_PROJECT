@@ -24,7 +24,6 @@ const LMSProtectedWrapper = ({ children }) => {
           );
 
           if (response.status == 201) {
-            console.log(response.data.student);
             setStudent(response.data.student);
             setIsLoading(false);
           }

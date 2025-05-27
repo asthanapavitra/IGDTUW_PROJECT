@@ -126,7 +126,6 @@ module.exports.getFaculty = async (req, res) => {
 
     // Filter materials for each allotment based on matching fields
     for (const allotment of faculty.allotedDepartments) {
-      console.log(allotment)
       allotment.materials = allotment.materials.filter((material) => {
         return (
           material.file.length > 0 &&
@@ -140,7 +139,6 @@ module.exports.getFaculty = async (req, res) => {
       });
     }
 
-    
     res.status(200).json({ faculty });
   } catch (err) {
     console.error("Error in getFaculty:", err);
@@ -199,7 +197,7 @@ module.exports.uploadDoc = async (req, res) => {
         const { unit, subject, fileName } = req.body;
 
         // console.log("Upload complete. File ID:", uploadedFileId);
-
+        console.log(subject);
         const book = await Book.create({
           fileName,
           unit: Number(unit),
@@ -208,8 +206,19 @@ module.exports.uploadDoc = async (req, res) => {
           fileUrl: `/faculty/files/${uploadedFileId}`, // Use this!
         });
         // 4. Save to StudyMaterial
-        let studyMaterial = await StudyMaterial.findOne({ unit: Number(unit) , subject:subject });
+        // 4. Save to StudyMaterial
+        let studyMaterials = await StudyMaterial.find().populate("file");
+        let studyMaterial = studyMaterials.find(
+          (material) =>
+            material.file.every(
+              (file) =>
+                file.subject === subject &&
+                file.unit===Number(unit)&&
+                file.faculty.toString() === req.faculty?._id.toString()
+            )
+        );
 
+        
         if (!studyMaterial) {
           studyMaterial = await StudyMaterial.create({
             unit: Number(unit),

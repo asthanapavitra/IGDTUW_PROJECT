@@ -8,7 +8,7 @@ const CoursePage = () => {
   const location = useLocation();
   const allotments = location.state?.allotments || {};
   let rawUnits = [];
-  console.log(allotments?.materials)
+  
   if (allotments?.materials?.length > 0) {
     rawUnits = allotments.materials.map((a) => ({
       unit: a.unit,
