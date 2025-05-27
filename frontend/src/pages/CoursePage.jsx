@@ -8,7 +8,8 @@ const CoursePage = () => {
   const location = useLocation();
   const allotments = location.state?.allotments || [];
   let rawUnits = [];
-  if (allotments.length > 0 && allotments.materials.length > 0) {
+
+  if (allotments && allotments.materials.length > 0) {
     rawUnits = allotments.materials.map((a) => ({
       unit: a.unit,
       files: a.file,
