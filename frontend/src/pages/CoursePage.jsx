@@ -7,16 +7,18 @@ const CoursePage = () => {
   const [activeUnit, setActiveUnit] = useState(null);
   const location = useLocation();
   const allotments = location.state?.allotments || [];
-
-  const rawUnits = allotments?.materials.map((a) => ({
-  unit: a.unit,
-  files: a.file,
-}));
-
+  let rawUnits = [];
+  if (allotments.length > 0 && allotments.materials.length > 0) {
+    rawUnits = allotments.materials.map((a) => ({
+      unit: a.unit,
+      files: a.file,
+    }));
+  }
 
   // Create an array for 4 units even if some have no data
   const units = [1, 2, 3, 4].map((unitNum) => {
-    const matched = rawUnits.find((u) => u.unit === unitNum);
+    const matched =
+      rawUnits.length > 0 && rawUnits.find((u) => u.unit === unitNum);
     return {
       unit: unitNum,
       files: matched ? matched.files : [],
