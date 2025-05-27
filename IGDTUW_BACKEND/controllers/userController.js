@@ -90,42 +90,78 @@ module.exports.getCourses = async (req, res) => {
       subject_code: { $in: semester.subjects },
     });
 
+    // 3. Get all faculties with their allotments for the given dept, semester, and section
+    const facultyList = await Faculty.find()
+      .populate({
+        path: "allotedDepartments",
+        match: {
+          department,
+          semester: semNo,
+          section,
+        },
+        populate: {
+          path: "materials",
+          model: "StudyMaterial",
+          populate: {
+            path: "file",
+            model: "Book",
+            populate: {
+              path: "faculty",
+              model: "Faculty",
+            },
+          },
+        },
+      })
+      .select("-password");
+
     const detailedSubjects = [];
 
     for (const subject of subjects) {
-      // 3. Get allotments for this subject, department, semester, and section
-      const allotments = await Allotment.find({
-        subject: subject.name,
-        department: department,
-        semester: semNo,
-        section: section,
-      }).populate({
-        path: "materials",
-        populate: {
-          path: "file",
-          model: "Book",
-        },
-      });
+      // Find the faculty allotted for this subject
+      const faculty = facultyList.find((fac) =>
+        fac.allotedDepartments.some(
+          (allotment) =>
+            allotment.subject.trim().toLowerCase() ===
+            subject.name.trim().toLowerCase()
+        )
+      );
+    
+      let matchingAllotment = null;
+      if (faculty) {
+        // Get the matching allotment
+        matchingAllotment = faculty.allotedDepartments.find(
+          (allotment) =>
+            allotment.subject.trim().toLowerCase() ===
+            subject.name.trim().toLowerCase()
+        );
 
-      // 4. Get faculty for these allotments
-      const facultyIds = await Faculty.find({
-        allotedDepartments: { $in: allotments.map((a) => a._id) },
-      }).select("-password");
+        // Filter the materials’ files for only those uploaded by this faculty for this subject
+        for (const material of matchingAllotment.materials) {
+          material.file = material.file.filter(
+            (file) =>
+              file.faculty._id.toString() === faculty._id.toString() &&
+              file.subject.trim().toLowerCase() ===
+                subject.name.trim().toLowerCase()
+          );
+        }
+      }
 
-      // 5. Structure allotment data with faculty and materials
-      const subjectData = {
+      detailedSubjects.push({
         subject: subject.name,
         subject_code: subject.subject_code,
-        allotments: allotments.map((a) => ({
-          section: a.section,
-          faculty: facultyIds.find((f) =>
-            f.allotedDepartments.some((id) => id.equals(a._id))
-          ),
-          materials: a.materials,
-        })),
-      };
+        allotments: faculty?{
+          faculty:  {
+                _id: faculty._id,
+                fullName: faculty.fullName,
+                email: faculty.email,
+                facultyId: faculty.facultyId,
+                department: faculty.department,
+              }
+            ,
 
-      detailedSubjects.push(subjectData);
+          materials: matchingAllotment.materials
+        }:null,
+      });
     }
 
     return res.status(200).json({ subjects: detailedSubjects });
@@ -134,4 +170,3 @@ module.exports.getCourses = async (req, res) => {
     return res.status(500).json({ message: "Server Error" });
   }
 };
-

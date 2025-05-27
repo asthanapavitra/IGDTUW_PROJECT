@@ -8,12 +8,11 @@ const CoursePage = () => {
   const location = useLocation();
   const allotments = location.state?.allotments || [];
 
-  const rawUnits = allotments.flatMap((a) =>
-    a.materials.map((material) => ({
-      unit: material.unit,
-      files: material.file,
-    }))
-  );
+  const rawUnits = allotments?.materials.map((a) => ({
+  unit: a.unit,
+  files: a.file,
+}));
+
 
   // Create an array for 4 units even if some have no data
   const units = [1, 2, 3, 4].map((unitNum) => {
@@ -97,8 +96,8 @@ const CoursePage = () => {
               <div>
                 <h3 className="font-bold text-green-700">Instructor</h3>
                 <p className="text-gray-800">
-                  {allotments[0]?.faculty?.fullName?.firstName}{" "}
-                  {allotments[0]?.faculty?.fullName?.lastName}
+                  {allotments?.faculty?.fullName?.firstName}{" "}
+                  {allotments?.faculty?.fullName?.lastName}
                 </p>
                 <p className="text-gray-600">{allotments[0]?.faculty?.email}</p>
               </div>

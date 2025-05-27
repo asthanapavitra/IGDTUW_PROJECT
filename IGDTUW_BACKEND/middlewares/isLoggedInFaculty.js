@@ -16,6 +16,7 @@ module.exports.isLoggedInFaculty = async (req, res, next) => {
           .json({ errors: [{ message: "Unauthorized,login first" }] });
       }
       req.faculty = faculty;
+      
       next();
     }
   } catch (err) {

@@ -96,35 +96,11 @@ module.exports.getAllFaculty = async (req, res) => {
   }
 };
 
-// module.exports.getFaculty = async (req, res) => {
-//   try {
-//     const faculty = await Faculty.findById(req.params.id)
-//       .select("-password")
-//       .populate({
-//         path: "allotedDepartments",
-//         populate: {
-//           path: "materials",
-//           populate: {
-//             path: "file",
-//             model: "Book",
-//             match: { faculty: new mongoose.Types.ObjectId(req.faculty._id) }, // ✅ Filter by current faculty
-//           },
-//         },
-//       });
-//     // console.log(faculty);
-//     if (!faculty) {
-//       return res.status(404).json({ errors: { message: "Not found" } });
-//     }
-//     res.status(200).json({ faculty });
-//   } catch (err) {
-//     res.status(500).json({ erros: { message: err.message } });
-//   }
-// };
 module.exports.getFaculty = async (req, res) => {
   try {
-    const matchFilter = req.faculty?._id
-      ? { faculty: new mongoose.Types.ObjectId(req.faculty._id) }
-      : {}; // fallback if req.faculty is undefined
+    const matchFilter = req.params.id
+      ? { faculty: new mongoose.Types.ObjectId(req.params.id) }
+      : {};
 
     const faculty = await Faculty.findById(req.params.id)
       .select("-password")
@@ -135,21 +111,43 @@ module.exports.getFaculty = async (req, res) => {
           populate: {
             path: "file",
             model: "Book",
-            match: matchFilter,
+            match: matchFilter, // Match Book.faculty === faculty._id
+            populate: {
+              path: "faculty",
+              model: "Faculty",
+            },
           },
         },
       });
 
     if (!faculty) {
-      return res.status(404).json({ errors: { message: "Not found" } });
+      return res.status(404).json({ errors: { message: "Faculty not found" } });
     }
 
+    // Filter materials for each allotment based on matching fields
+    for (const allotment of faculty.allotedDepartments) {
+      console.log(allotment)
+      allotment.materials = allotment.materials.filter((material) => {
+        return (
+          material.file.length > 0 &&
+          material.file.every(
+            (file) =>
+              file.faculty &&
+              file.subject === allotment.subject &&
+              file.faculty._id.toString() === faculty._id.toString()
+          )
+        );
+      });
+    }
+
+    
     res.status(200).json({ faculty });
   } catch (err) {
-    console.error("Error in getFaculty:", err); // Log the real error
+    console.error("Error in getFaculty:", err);
     res.status(500).json({ errors: { message: err.message } });
   }
 };
+
 module.exports.updateFaculty = async (req, res) => {
   try {
     const faculty = await Faculty.findByIdAndUpdate(req.params.id, req.body, {
@@ -210,7 +208,7 @@ module.exports.uploadDoc = async (req, res) => {
           fileUrl: `/faculty/files/${uploadedFileId}`, // Use this!
         });
         // 4. Save to StudyMaterial
-        let studyMaterial = await StudyMaterial.findOne({ unit: Number(unit) });
+        let studyMaterial = await StudyMaterial.findOne({ unit: Number(unit) , subject:subject });
 
         if (!studyMaterial) {
           studyMaterial = await StudyMaterial.create({

@@ -32,6 +32,7 @@ export default function FacultyDashboard() {
   const onSelectAllotment = (allotment) => {
     navigate("/add-materials", { state: { allotment } });
   };
+  console.log(allotments)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-8">
