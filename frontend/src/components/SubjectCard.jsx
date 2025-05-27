@@ -7,44 +7,44 @@ const SubjectCard = ({ course }) => {
   const [loading, setLoading] = useState(true)
 
   // Use Google Gemini Flash 2 Text-to-Image API to generate a subject-related image
-  async function fetchGeminiFlashImage(subject) {
-    setLoading(true)
-    try {
-      const apiKey = import.meta.env.VITE_GOOGLE_API_KEY
-      const response = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta2/textToImage:generate',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            prompt: subject,
-            model: 'image-alpha-flash-2',    // switch to Gemini Flash 2 image model
-            imageCount: 1,
-            imageSize: '1024x1024',
-          }),
-        }
-      )
-      const data = await response.json()
-      if (data.candidates && data.candidates.length > 0) {
-        setImgUrl(data.candidates[0].imageUri)
-      } else {
-        console.warn('Gemini Flash 2 returned no images for:', subject)
-        setImgUrl('')
-      }
-    } catch (err) {
-      console.error('Gemini Flash 2 fetch error:', err)
-      setImgUrl('')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // async function fetchGeminiFlashImage(subject) {
+  //   setLoading(true)
+  //   try {
+  //     const apiKey = import.meta.env.VITE_GOOGLE_API_KEY
+  //     const response = await fetch(
+  //       'https://generativelanguage.googleapis.com/v1beta2/textToImage:generate',
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${apiKey}`,
+  //         },
+  //         body: JSON.stringify({
+  //           prompt: subject,
+  //           model: 'image-alpha-flash-2',    // switch to Gemini Flash 2 image model
+  //           imageCount: 1,
+  //           imageSize: '1024x1024',
+  //         }),
+  //       }
+  //     )
+  //     const data = await response.json()
+  //     if (data.candidates && data.candidates.length > 0) {
+  //       setImgUrl(data.candidates[0].imageUri)
+  //     } else {
+  //       console.warn('Gemini Flash 2 returned no images for:', subject)
+  //       setImgUrl('')
+  //     }
+  //   } catch (err) {
+  //     console.error('Gemini Flash 2 fetch error:', err)
+  //     setImgUrl('')
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
-  useEffect(() => {
-    if (course.subject) fetchGeminiFlashImage(course.subject)
-  }, [course.subject])
+  // useEffect(() => {
+  //   if (course.subject) fetchGeminiFlashImage(course.subject)
+  // }, [course.subject])
 
   return (
     <div className="cursor-pointer group relative flex flex-col bg-white shadow-sm border border-slate-200 rounded-lg w-80 md:w-75 hover:shadow-lg transition-shadow duration-300">
