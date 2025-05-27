@@ -9,48 +9,63 @@ const PdfViewer = () => {
   const { fileId } = useParams();
   const [numPages, setNumPages] = useState(0);
   const canvasContainerRef = useRef();
+  const previousWidthRef = useRef(0);
   const pdfUrl = `${import.meta.env.VITE_BASE_URL}/faculty/get-file/${fileId}`;
 
-  useEffect(() => {
-    const renderPDF = async () => {
-      const container = canvasContainerRef.current;
-      if (!container) return;
-
-      container.innerHTML = ""; // Clear old canvases
-
-      const loadingTask = pdfjsLib.getDocument(pdfUrl);
-      const pdf = await loadingTask.promise;
-      setNumPages(pdf.numPages);
-
-      const containerWidth = container.clientWidth;
-
-      for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-        const page = await pdf.getPage(pageNumber);
-
-        const unscaledViewport = page.getViewport({ scale: 1 });
-        const scale = containerWidth / unscaledViewport.width;
-
-        const viewport = page.getViewport({ scale });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        container.appendChild(canvas);
-
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
-        page.render(renderContext);
-      }
+  // Debounce function to limit frequency
+  const debounce = (fn, delay) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
     };
+  };
 
+  const renderPDF = async () => {
+    const container = canvasContainerRef.current;
+    if (!container) return;
+
+    const currentWidth = container.clientWidth;
+
+    // Only re-render if width has changed significantly (e.g., screen rotation)
+    if (Math.abs(previousWidthRef.current - currentWidth) < 10) return;
+
+    previousWidthRef.current = currentWidth;
+    container.innerHTML = "";
+
+    const loadingTask = pdfjsLib.getDocument(pdfUrl);
+    const pdf = await loadingTask.promise;
+    setNumPages(pdf.numPages);
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      const page = await pdf.getPage(pageNumber);
+
+      const unscaledViewport = page.getViewport({ scale: 1 });
+      const scale = currentWidth / unscaledViewport.width;
+
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      container.appendChild(canvas);
+
+      await page.render({ canvasContext: context, viewport }).promise;
+    }
+  };
+
+  useEffect(() => {
     renderPDF();
-    window.addEventListener("resize", renderPDF); // re-render on resize
+
+    const handleResize = debounce(() => {
+      renderPDF();
+    }, 300);
+
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("resize", renderPDF);
+      window.removeEventListener("resize", handleResize);
     };
   }, [pdfUrl]);
 
@@ -62,4 +77,3 @@ const PdfViewer = () => {
 };
 
 export default PdfViewer;
-
